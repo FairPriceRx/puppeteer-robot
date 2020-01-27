@@ -85,6 +85,7 @@ class PayPalRobot extends PuppeteerRobot {
 				await that.safeSetVal(page, '#issueDate',order.order_date)
 				await page.keyboard.down('Enter');
 				await page.keyboard.up('Enter');
+				await page.select('#invoiceTerms', 'noduedate')
 				
 				await that.safeType(page,'#reference','')
 
@@ -111,12 +112,15 @@ class PayPalRobot extends PuppeteerRobot {
 				await page.select('#billing_country_code', order.order_customer_country_code)
 
 //				await that.safeType(page,'#billing_state', order.order_customer_state)
-				await that.safeSetVal(page, '#billing_city', 'Ternopil')
+				await that.safeSetVal(page, '#billing_city', order.order_customer_city)
+				await page.waitFor(200)
 				
 				await that.safeSetVal(page, '#billing_line1', order.order_customer_address)
+				await page.waitFor(200)
 //				await that.safeSetVal(page, '#billing_line2', '')
 				
 				await that.safeSetVal(page, '#billing_postal_code', order.order_customer_zip)
+				await page.waitFor(200)
 
 				await page.$eval('.reciEditHead.shipHead', el => el.click())
 				await page.waitFor(700)
