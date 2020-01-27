@@ -47,7 +47,7 @@
     "email": "gutsal.arsen@gmail.com"
   },
   "dependencies": {
-    "dotenv": "^8.2.0",
+    "dotenv-flow": "^3.1.0",
     "proxy-chain": "^0.3.3",
     "puppeteer": "^2.0.0"
   }

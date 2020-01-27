@@ -1,5 +1,5 @@
 /node_modules/
 /out/
-/src/.env
+/src/.env.local
 /src/*.png
 /yarn.lock
