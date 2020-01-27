@@ -34,6 +34,17 @@ class PuppeteerRobot {
 				await page.$eval(id, el => el.value = '')
 				await page.type(id ,val)
 		}
+		
+		/**
+		 * Helper method that correctly sets value via typing
+		 * on INPUT/SELECT elements. If element is not found
+		 * no problem is thrown
+		 */
+		async safeType(page, id, val){
+				if(page.$(id) != null){
+						await page.type(id ,val)
+				}
+		}
 }
 
 module.exports = PuppeteerRobot
