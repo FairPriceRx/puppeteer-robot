@@ -7,7 +7,6 @@ export class App {
   constructor() {
     console.log('Awesome App is running!');
   }
-
 }
 
 const app = new App();
