@@ -161,10 +161,13 @@ class PayPalRobot extends PuppeteerRobot {
 		let botPP = new PayPalRobot({
 				proxyUrl: process.env.PROXY_CFG,
 				headless: false,
-				slowMo: 25
+				slowMo: 25,
+				args: [
+//						'--start-fullscreen'						
+				]
 		})
 		await botPP.init()
 		await botPP.login(process.env.PP_LOGIN, process.env.PP_PASSWD)
 		
-		await botPP.createOrder(require('./order_json.json'))
+//		await botPP.createOrder(require('./order_json.json'))
 })
