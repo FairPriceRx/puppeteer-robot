@@ -2,26 +2,26 @@
   "main": "dist/app.js",
   "types": "dist/app.d.ts",
   "devDependencies": {
-    "dotup-ts-git-wrapper": "^1.0.0",
-    "gulp": "^4.0.2",
-    "gulp-tslint": "^8.1.4",
-    "gulp-typescript": "^6.0.0-alpha.1",
-    "gulp-sourcemaps": "^2.6.5",
-    "gulp-gh-pages": "^0.5.4",
-    "gulp-typedoc": "^2.2.4",
-    "gulp-mocha": "^7.0.2",
-    "del": "^5.1.0",
-    "cross-spawn": "^7.0.1",
     "@types/chai": "^4.2.7",
     "@types/mocha": "^5.2.7",
     "chai": "^4.2.0",
+    "cross-spawn": "^7.0.1",
+    "del": "^5.1.0",
+    "dotup-ts-git-wrapper": "^1.0.0",
+    "gh-pages": "^2.2.0",
+    "gulp": "^4.0.2",
+    "gulp-gh-pages": "^0.5.4",
+    "gulp-mocha": "^7.0.2",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-tslint": "^8.1.4",
+    "gulp-typedoc": "^2.2.4",
+    "gulp-typescript": "^6.0.0-alpha.1",
     "mocha": "^7.0.0",
     "ts-node": "^8.6.2",
-    "typedoc": "^0.16.8",
-    "typescript": "^3.7.5",
     "tslint": "^6.0.0",
     "tslint-microsoft-contrib": "^6.2.0",
-    "gh-pages": "^2.2.0"
+    "typedoc": "^0.16.8",
+    "typescript": "^3.7.5"
   },
   "repository": {
     "type": "git",
@@ -45,5 +45,8 @@
   "author": {
     "name": "y",
     "email": "gutsal.arsen@gmail.com"
+  },
+  "dependencies": {
+    "puppeteer": "^2.0.0"
   }
 }
