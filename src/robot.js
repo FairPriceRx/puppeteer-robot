@@ -31,6 +31,17 @@ class PuppeteerRobot {
 		 */
 		async safeSetVal(page, id, val){
 				await page.focus(id)
+				const el = await page.$(id)
+				let elPos = await page.evaluate((el) => {
+            const {top, left} = el.getBoundingClientRect();
+            return {top, left};
+        }, el);
+
+        await page.mouse.move(elPos.left + 2, elPos.top + 2);
+				await page.mouse.down(elPos.left + 2, elPos.top + 2);
+				
+				await page.waitFor(500);
+				
 				await page.$eval(id, el => el.value = '')
 				await page.type(id ,val)
 		}

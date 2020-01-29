@@ -57,10 +57,7 @@ class PayPalRobot extends PuppeteerRobot {
 
 				await page.waitFor(700)
 				await that.safeSetVal(page, '#email', process.env.PP_LOGIN)
-				const btnNext = await page.waitForSelector('#btnNext', {
-						visible: true,
-				})
-				if(btnNext){
+				if(await page.$('#btnNext')){
 						await page.click("#btnNext")
 				}
 				await page.waitFor(1200)
@@ -165,7 +162,8 @@ class PayPalRobot extends PuppeteerRobot {
 				headless: false,
 				slowMo: 25,
 				args: [
-//						'--start-fullscreen'						
+						//						'--start-fullscreen'
+						'--display=:1'
 				]
 		})
 		base.prototype = Object.create(sup.prototype);
