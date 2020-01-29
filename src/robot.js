@@ -7,7 +7,7 @@ class PuppeteerRobot {
 		}
 
 		async init(){
-				const args = []
+				const args = this.opts.args || []
 				if(this.opts.proxyUrl){
 						const newProxyUrl = await ProxyChain.anonymizeProxy(this.opts.proxyUrl);
 						console.log(newProxyUrl);
