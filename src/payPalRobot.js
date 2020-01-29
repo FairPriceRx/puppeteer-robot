@@ -39,8 +39,8 @@ ORDER SAMPLE:
 
  */
 
-const PuppeteerRobot = require('./robot')
-const countryTelephoneCode=require('country-telephone-code')
+const { PuppeteerRobot } = require('./robot')
+const countryTelephoneCode = require('country-telephone-code')
 const lookup = require('country-code-lookup')
 require('dotenv-flow').config()
 
@@ -168,6 +168,24 @@ class PayPalRobot extends PuppeteerRobot {
 //						'--start-fullscreen'						
 				]
 		})
+		base.prototype = Object.create(sup.prototype);
+		var handler = {
+				construct: function(target, args) {
+						var obj = Object.create(base.prototype);
+						this.apply(target, obj, args);
+						return obj;
+				},
+				apply: function(target, that, args) {
+						sup.apply(that, args);
+						base.apply(that, args);
+				}
+		};
+		var proxy = new Proxy(base, handler);
+
+const p = new Proxy({}, handler);
+p.a = 1;
+p.b = undefined;
+
 		await botPP.init()
 		await botPP.login(process.env.PP_LOGIN, process.env.PP_PASSWD)
 		

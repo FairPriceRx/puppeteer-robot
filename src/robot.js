@@ -47,4 +47,5 @@ class PuppeteerRobot {
 		}
 }
 
-module.exports = PuppeteerRobot
+module.exports =
+		{ PuppeteerRobot }
