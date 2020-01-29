@@ -3,3 +3,4 @@
 /src/.env.local
 /src/*.png
 /yarn.lock
+/package-lock.json
