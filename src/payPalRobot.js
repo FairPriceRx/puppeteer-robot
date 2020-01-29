@@ -40,6 +40,7 @@ ORDER SAMPLE:
  */
 
 const { PuppeteerRobot } = require('./robot')
+
 const countryTelephoneCode = require('country-telephone-code')
 const lookup = require('country-code-lookup')
 require('dotenv-flow').config()
@@ -146,7 +147,15 @@ class PayPalRobot extends PuppeteerRobot {
 						await that.safeSetVal(page, '#invDiscount', process.env.DISCOUNT)
 				}
 
-				await page.click('#sendActionButton')
+				if(order.order_shipping_cost){
+						await that.safeSetVal(page,
+																	'#shippingAmountDisplay',
+																	new String(order.order_shipping_cost))
+				}
+
+				if(page.$('#sendActionButton')){
+						await page.click('#sendActionButton')
+				}
 		}
 		/**
 		 * Logs out from PayPal and close browser
@@ -166,24 +175,6 @@ class PayPalRobot extends PuppeteerRobot {
 						'--display=:1'
 				]
 		})
-		base.prototype = Object.create(sup.prototype);
-		var handler = {
-				construct: function(target, args) {
-						var obj = Object.create(base.prototype);
-						this.apply(target, obj, args);
-						return obj;
-				},
-				apply: function(target, that, args) {
-						sup.apply(that, args);
-						base.apply(that, args);
-				}
-		};
-		var proxy = new Proxy(base, handler);
-
-const p = new Proxy({}, handler);
-p.a = 1;
-p.b = undefined;
-
 		await botPP.init()
 		await botPP.login(process.env.PP_LOGIN, process.env.PP_PASSWD)
 		
