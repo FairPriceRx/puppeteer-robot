@@ -148,6 +148,8 @@ class PayPalRobot extends PuppeteerRobot {
 				if(parseInt(order.order_total) > parseInt(process.env.MIN_DISCOUNT_AMOUNT)){
 						await that.safeSetVal(page, '#invDiscount', process.env.DISCOUNT)
 				}
+
+				await page.click('#sendActionButton')
 		}
 		/**
 		 * Logs out from PayPal and close browser
