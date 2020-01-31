@@ -6,6 +6,7 @@ require('dotenv-flow').config()
 const { PayPalRobot } = require('./payPalRobot')
 var App = (function () {
     function App() {
+				const that = this;
         console.log('Awesome App is running!');
 
 				const server = express()
@@ -16,12 +17,11 @@ var App = (function () {
 						req.on('data', async (order) => {
 								const jsonOrder = JSON.parse(order)
 								console.log(`Sending order to server: ${order}`)
-								let botPP = new PayPalRobot({
+								const botPP = that.botPP = new PayPalRobot({
 										proxyUrl: process.env.PROXY_CFG,
 										headless: false,
 										slowMo: 25,
 										args: [
-												'--start-fullscreen',
 												'--force-device-scale-factor=0.5',
 												'--display=:1'
 										]
@@ -32,8 +32,13 @@ var App = (function () {
 																	process.env.PP_PASSWD)
 
 								await botPP.createOrder(jsonOrder)
-								//await botPP.logout() // logs out and close browser
+
+								page.waitFor(5000); // waiting for order to be actually send
+								
+								await botPP.logout() // logs out and close browser
 								res.send('OK')
+
+								// that = botPP = app.botPP;page = that.currentPage;order = require('./order_json.json')
 						})
 				})
 

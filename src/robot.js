@@ -1,6 +1,8 @@
 const puppeteer = require('puppeteer');
 const ProxyChain = require('proxy-chain');
 
+const { all } = Promise;
+
 class PuppeteerRobot {
 		constructor(opts) {
 				this.opts = opts
@@ -30,20 +32,13 @@ class PuppeteerRobot {
 		 * on INPUT element
 		 */
 		async safeSetVal(page, id, val){
-				await page.focus(id)
-				const el = await page.$(id)
-				let elPos = await page.evaluate((el) => {
-            const {top, left} = el.getBoundingClientRect();
-            return {top, left};
-        }, el);
-
-        await page.mouse.move(elPos.left + 2, elPos.top + 2);
-				await page.mouse.down(elPos.left + 2, elPos.top + 2);
-				
-				await page.waitFor(500);
-				
-				await page.$eval(id, el => el.value = '')
-				await page.type(id ,val)
+				const el = await page.$(id);
+				return Promise.all([
+						page.focus(id),
+						//el.click({ clickCount: 3}),
+						page.evaluate((id) => document.querySelector(id).value = '', id),						
+						page.type(id, val, { delay: 25 })
+				])
 		}
 		
 		/**
@@ -53,10 +48,29 @@ class PuppeteerRobot {
 		 */
 		async safeType(page, id, val){
 				if(page.$(id) != null){
+//						await page.hover(id)
 						await page.type(id ,val)
 				}
 		}
+		/**
+		 * Helper method that correctly sets value via typing
+		 * on INPUT/SELECT elements. If element is not found
+		 * no problem is thrown
+		 */
+		async safeClick(page, id){
+				if(page.$(id) != null){
+						const el = await page.$(id)
+						let elPos = await page.evaluate((el) => {
+								const {top, left} = el.getBoundingClientRect();
+								return {top, left};
+						}, el);
+
+						await page.mouse.move(elPos.left + 2, elPos.top + 2);
+						await page.mouse.down(elPos.left + 2, elPos.top + 2);
+						await page.mouse.up();
+				}
+		}
+		
 }
 
-module.exports =
-		{ PuppeteerRobot }
+module.exports = { PuppeteerRobot }

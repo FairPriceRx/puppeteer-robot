@@ -53,6 +53,12 @@ class PayPalRobot extends PuppeteerRobot {
 				// LOGIN
 				const that = this // common technique used to simplify REPL invocation
 				const page = that.currentPage = await that.browser.newPage();
+				await page.setViewport({
+						width: 1280,
+						height: 1024,
+						deviceScaleFactor: 1
+				});
+				
 				await page.goto('https://www.paypal.com/us/signin', { waitUntil: 'networkidle2' });
 
 				await page.waitFor(700)
@@ -69,17 +75,17 @@ class PayPalRobot extends PuppeteerRobot {
 		async createOrder(order){
 				const that = this // common technique used to simplify REPL invocation
 				let page = that.currentPage
-				order.order_customer_country_code
-						= lookup.byCountry(order.order_customer_country).internet
+				order.order_customer_country
+						= lookup.byInternet(order.order_customer_country_code).country
 				
 				// ORDER
-				await page.goto('https://www.paypal.com/invoice/manage', { waitUntil: 'networkidle0' });
+				// await page.goto('https://www.paypal.com/invoice/manage', { waitUntil: 'networkidle0' });
 				await page.goto('https://www.paypal.com/invoice/create', { waitUntil: 'networkidle2' });
 
 				// invoice information
-				await that.safeSetVal(page, '#invoiceNumber',order.order_id)
+				await that.safeSetVal(page, '#invoiceNumber', order.order_id)
 
-				await that.safeSetVal(page, '#issueDate',order.order_date)
+				await that.safeSetVal(page, '#issueDate', order.order_date)
 				await page.keyboard.down('Enter');
 				await page.keyboard.up('Enter');
 				await page.select('#invoiceTerms', 'noduedate')
@@ -105,19 +111,20 @@ class PayPalRobot extends PuppeteerRobot {
 				await that.safeSetVal(page, '#bill_phone', order.order_customer_phone)
 				await page.$eval('.reciEditHead.reciHead', el => el.click())
 				await page.waitFor(700)
-				
+
 				await page.select('#billing_country_code', order.order_customer_country_code)
 
 //				await that.safeType(page,'#billing_state', order.order_customer_state)
+
 				await that.safeSetVal(page, '#billing_city', order.order_customer_city)
-				await page.waitFor(200)
+				await page.waitFor(500)
 				
 				await that.safeSetVal(page, '#billing_line1', order.order_customer_address)
-				await page.waitFor(200)
-//				await that.safeSetVal(page, '#billing_line2', '')
+				await page.waitFor(500)
+				await that.safeSetVal(page, '#billing_line2', '')
 				
 				await that.safeSetVal(page, '#billing_postal_code', order.order_customer_zip)
-				await page.waitFor(200)
+				await page.waitFor(500)
 
 				await page.$eval('.reciEditHead.shipHead', el => el.click())
 				await page.waitFor(700)
@@ -137,9 +144,11 @@ class PayPalRobot extends PuppeteerRobot {
 				await page.select('#bill_language', 'en_US')
 				await page.$eval('#saveRecInfo', check => check.click())
 				await page.waitFor(700)
+				
+				await page.waitForSelector('#itemName_0')
 
-				await that.safeSetVal(page, '#itemName_0', `Delivery Service #[${order.order_id}]`)
-				await that.safeSetVal(page, '#itemQty_0', '1')
+				await that.safeSetVal(page,'#itemName_0', `Delivery Service #[${order.order_id}]`)
+				await that.safeSetVal(page,'#itemQty_0', '1')
 				await that.safeSetVal(page, '#itemPrice_0', order.order_total)
 
 				if(parseInt(order.order_total) > parseInt(process.env.MIN_DISCOUNT_AMOUNT)){
@@ -147,13 +156,16 @@ class PayPalRobot extends PuppeteerRobot {
 				}
 
 				if(order.order_shipping_cost){
-						await that.safeSetVal(page,
-																	'#shippingAmountDisplay',
+						await that.safeSetVal(page, '#shippingAmount',
 																	new String(order.order_shipping_cost))
 				}
 
-				if(page.$('#sendActionButton')){
-						await page.click('#sendActionButton')
+				if(page.$('#sendSplitButton')){
+						await page.evaluate(() => {
+								var el = document.querySelector('#sendSplitButton')
+								el.scrollIntoView()
+						})
+						await page.$eval("#sendInvoice", el => el.click())
 				}
 		}
 		/**
