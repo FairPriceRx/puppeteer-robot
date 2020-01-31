@@ -33,12 +33,14 @@ class PuppeteerRobot {
 		 */
 		async safeSetVal(page, id, val){
 				const el = await page.$(id);
-				return Promise.all([
-						page.focus(id),
-						//el.click({ clickCount: 3}),
-						page.evaluate((id) => document.querySelector(id).value = '', id),						
-						page.type(id, val, { delay: 25 })
-				])
+				if((el != null)
+					 && (val != '' && val != null)){
+						return this.doInSeries([
+								async => page.focus(id),
+								async => page.evaluate((id, val) => document.querySelector(id).value = val, id, val),						
+//								page.type(id, val, { delay: 25 })
+						])
+				}
 		}
 		
 		/**
@@ -47,9 +49,9 @@ class PuppeteerRobot {
 		 * no problem is thrown
 		 */
 		async safeType(page, id, val){
-				if(page.$(id) != null){
-//						await page.hover(id)
-						await page.type(id ,val)
+				if((page.$(id) != null) &&
+					 (val != null) && (val != '')){
+						return page.type(id, val)
 				}
 		}
 		/**
@@ -69,6 +71,17 @@ class PuppeteerRobot {
 						await page.mouse.down(elPos.left + 2, elPos.top + 2);
 						await page.mouse.up();
 				}
+		}
+
+		async doInSeries(tasks){
+				return tasks.reduce((promiseChain, currentTask) => {
+						return promiseChain
+								.then(chainResults =>
+											currentTask()
+											.then(currentResult =>
+														[ ...chainResults, currentResult ])
+										 );
+				}, Promise.resolve([]))				
 		}
 		
 }

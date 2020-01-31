@@ -53,23 +53,42 @@ class PayPalRobot extends PuppeteerRobot {
 				// LOGIN
 				const that = this // common technique used to simplify REPL invocation
 				const page = that.currentPage = await that.browser.newPage();
-				await page.setViewport({
-						width: 1280,
-						height: 1024,
-						deviceScaleFactor: 1
-				});
-				
-				await page.goto('https://www.paypal.com/us/signin', { waitUntil: 'networkidle2' });
+				await this.doInSeries([
+						async => page.setViewport({
+								width: 1280,
+								height: 1024,
+								deviceScaleFactor: 1
+						}),
+						
+						async => page.goto('https://www.paypal.com/us/signin',
+															 { waitUntil: 'networkidle2' }),
+						
 
-				await page.waitFor(700)
-				await that.safeSetVal(page, '#email', process.env.PP_LOGIN)
-				if(await page.$('#btnNext')){
-						await page.click("#btnNext")
-				}
-				await page.waitFor(1200)
-				await that.safeSetVal(page, '#password',process.env.PP_PASSWD)
-
-				await page.$eval('#btnLogin', el => el.click());				
+						async => page.waitFor(700),
+						async => that.safeSetVal(page, '#email',
+																		 process.env.PP_LOGIN),
+						async => page.$('#btnNext')
+								.then(p => {
+										if(p){
+												return page.click("#btnNext")
+										} else return Promise.resolve()
+								}),
+						async => page.waitFor(1000),
+						async => page.$('#password')
+								.then(p => {
+										if(p){
+												return that.doInSeries([
+														async => that.safeType(page, '#password',
+																										 process.env.PP_PASSWD),
+														async => page.waitFor(1000),
+														async => page.$eval('#btnLogin',
+																								el =>
+																								el.click()),
+														async => page.waitFor(5000) // change to waitForNavigation
+												])
+										} else return Promise.resolve()
+								})
+				])
 		}
 
 		async createOrder(order){
@@ -112,20 +131,26 @@ class PayPalRobot extends PuppeteerRobot {
 				await page.$eval('.reciEditHead.reciHead', el => el.click())
 				await page.waitFor(700)
 
-				await page.select('#billing_country_code', order.order_customer_country_code)
+				// setting Billing Info
 
-//				await that.safeType(page,'#billing_state', order.order_customer_state)
+				await page.select('#billing_country_code',
+													order.order_customer_country_code),
 
-				await that.safeSetVal(page, '#billing_city', order.order_customer_city)
-				await page.waitFor(500)
+				await that.safeType(page,'#billing_state',
+														order.order_customer_state)
+
+				await that.safeSetVal(page, '#billing_city',
+															order.order_customer_city)
 				
-				await that.safeSetVal(page, '#billing_line1', order.order_customer_address)
-				await page.waitFor(500)
-				await that.safeSetVal(page, '#billing_line2', '')
+ 				await that.safeSetVal(page, '#billing_line1',
+															order.order_customer_address)
 				
-				await that.safeSetVal(page, '#billing_postal_code', order.order_customer_zip)
-				await page.waitFor(500)
-
+				await that.safeSetVal(page, '#billing_line2',
+															order.order_customer_address2)
+				
+				await that.safeSetVal(page, '#billing_postal_code',
+															order.order_customer_zip)
+				
 				await page.$eval('.reciEditHead.shipHead', el => el.click())
 				await page.waitFor(700)
 				await page.$eval('#sameBillingShipping', check => check.click())
@@ -160,7 +185,7 @@ class PayPalRobot extends PuppeteerRobot {
 																	new String(order.order_shipping_cost))
 				}
 
-				if(page.$('#sendSplitButton')){
+				if(await page.$('#sendSplitButton')){
 						await page.evaluate(() => {
 								var el = document.querySelector('#sendSplitButton')
 								el.scrollIntoView()
@@ -177,3 +202,5 @@ class PayPalRobot extends PuppeteerRobot {
 }
 
 module.exports = { PayPalRobot }
+
+
