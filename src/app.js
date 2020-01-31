@@ -33,7 +33,7 @@ var App = (function () {
 
 								await botPP.createOrder(jsonOrder)
 
-								page.waitFor(5000); // waiting for order to be actually send
+								botPP.currentPage.waitFor(5000); // waiting for order to be actually send
 								
 								await botPP.logout() // logs out and close browser
 								res.send('OK')
