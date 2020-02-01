@@ -1,6 +1,8 @@
 const puppeteer = require('puppeteer');
 const ProxyChain = require('proxy-chain');
 
+const { all } = Promise;
+
 class PuppeteerRobot {
 		constructor(opts) {
 				this.opts = opts
@@ -30,20 +32,15 @@ class PuppeteerRobot {
 		 * on INPUT element
 		 */
 		async safeSetVal(page, id, val){
-				await page.focus(id)
-				const el = await page.$(id)
-				let elPos = await page.evaluate((el) => {
-            const {top, left} = el.getBoundingClientRect();
-            return {top, left};
-        }, el);
-
-        await page.mouse.move(elPos.left + 2, elPos.top + 2);
-				await page.mouse.down(elPos.left + 2, elPos.top + 2);
-				
-				await page.waitFor(500);
-				
-				await page.$eval(id, el => el.value = '')
-				await page.type(id ,val)
+				const el = await page.$(id);
+				if((el != null)
+					 && (val != '' && val != null)){
+						return this.doInSeries([
+								async => page.focus(id),
+								async => page.evaluate((id, val) => document.querySelector(id).value = val, id, val),						
+//								page.type(id, val, { delay: 25 })
+						])
+				}
 		}
 		
 		/**
@@ -52,11 +49,41 @@ class PuppeteerRobot {
 		 * no problem is thrown
 		 */
 		async safeType(page, id, val){
-				if(page.$(id) != null){
-						await page.type(id ,val)
+				if((page.$(id) != null) &&
+					 (val != null) && (val != '')){
+						return page.type(id, val)
 				}
 		}
+		/**
+		 * Helper method that correctly sets value via typing
+		 * on INPUT/SELECT elements. If element is not found
+		 * no problem is thrown
+		 */
+		async safeClick(page, id){
+				if(page.$(id) != null){
+						const el = await page.$(id)
+						let elPos = await page.evaluate((el) => {
+								const {top, left} = el.getBoundingClientRect();
+								return {top, left};
+						}, el);
+
+						await page.mouse.move(elPos.left + 2, elPos.top + 2);
+						await page.mouse.down(elPos.left + 2, elPos.top + 2);
+						await page.mouse.up();
+				}
+		}
+
+		async doInSeries(tasks){
+				return tasks.reduce((promiseChain, currentTask) => {
+						return promiseChain
+								.then(chainResults =>
+											currentTask()
+											.then(currentResult =>
+														[ ...chainResults, currentResult ])
+										 );
+				}, Promise.resolve([]))				
+		}
+		
 }
 
-module.exports =
-		{ PuppeteerRobot }
+module.exports = { PuppeteerRobot }
