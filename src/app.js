@@ -7,7 +7,7 @@ const { PayPalRobot } = require('./payPalRobot')
 var App = (function () {
     function App() {
 				const that = this;
-        console.log('Robot APP is running!');
+        console.log('Robot App is running!');
 
 				const server = express()
 				const port = process.env.PUPPETEER_SERVER_PORT || 8080
@@ -35,7 +35,7 @@ var App = (function () {
 
 								await botPP.createOrder(jsonOrder)
 
-								botPP.currentPage.waitFor(5000); // waiting for order to be actually send
+								await botPP.currentPage.waitFor(2000); // waiting for order to be actually send
 								
 								//await botPP.logout() // logs out and close browser
 								res.send('OK')
