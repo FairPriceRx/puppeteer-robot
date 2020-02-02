@@ -1,31 +1,41 @@
-class Doer {
-		async do(...args){
-				let fileSuffix
-				if(args.length === 0){
-						throw "Doer.do() should be called with multiple arguments"
-				}
-				if(typeof(args[0] === 'string')){
-						fileSuffix = args[0]
-						args = args.slice(1)
-				}
+type AsyncFunction = (...args:any[]) => Promise<any>
 
-				console.log(args)
-				return args
-						.reduce((promiseChain, currentTask) => 
-										promiseChain.then(chainResults =>
-																			currentTask().then(currentResult => [ ...chainResults, currentResult ])), Promise.resolve([]))
-						.then(() => console.log(`Finished ${Date.now()}-${fileSuffix.toLowerCase().split(/\s/).join('_')}`))
-		}
+class Doer {
+	async do(whatToDo: string, ...args:AsyncFunction[]){
+		if(args.length === 0)
+			throw "Doer.do() should be called with multiple arguments"
+        let reduceFunc = (promiseChain:Promise<any>, currentTask:AsyncFunction) => 
+			promiseChain
+            .then((chainResults:any[]) =>
+				  currentTask(Doer.lastDefined(chainResults))
+                  // passing recent argument to next call1
+                  .then((currentResult) => [ ...chainResults, currentResult ]))
+		return args
+			.reduce(reduceFunc, Promise.resolve([]))
+			.then((results) => {
+                let now:number = Date.now()
+                const screenshotFileName =
+                    now + '-' +
+                    whatToDo
+                    .toLowerCase()
+                    .split(/\s/)
+                    .join('_')
+                
+                console.log(`Finished ${screenshotFileName}`)
+                return results
+            })
+	}
+    static lastDefined(arr:any[]):any {
+        for(let i = arr.length - 1;i >= 0;i--){
+            if(arr[i] !== undefined)
+                return arr[i]
+        }
+        return undefined
+    }
+    async delay(ms:number) {
+        return new Promise((resolve:any) => setTimeout(resolve, ms));
+    }
+        
 }
 
-let doer = new Doer();
-doer.do(
-		'Starting timer hits',
-		async () => console.log("Start"),
-		async () => new Promise((resolve) => setTimeout(() => resolve(),	2000)),
-		async () => console.log("Hit #1"),
-		async () => new Promise((resolve) => setTimeout(() => resolve(),	2000)),
-		async () => console.log("Hit #2"),
-		async () => new Promise((resolve) => setTimeout(() => resolve(),	2000)),
-		async () => console.log("End")
-).then(() => console.log('I\'m over'))
+export { Doer, AsyncFunction }
