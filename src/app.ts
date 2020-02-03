@@ -1,11 +1,12 @@
 // This is the application entry point
-const express = require('express')
+import express from 'express'
+import dotenv from 'dotenv-flow'
+dotenv.config()
 
-require('dotenv-flow').config()
+import { PayPalRobot } from './payPalRobot'
 
-const { PayPalRobot } = require('./payPalRobot')
-var App = (function () {
-    function App() {
+class App {
+		constructor(arg) {
 				const that = this;
         console.log('Robot App is running!');
 
@@ -44,10 +45,10 @@ var App = (function () {
 						})
 				})
 
-				server.listen(port, () => console.log(`Example app listening on port ${port}!`))
-				
-    }
-    return App;
-})();
-exports.App = App;
-var app = new App();
+				server.listen(port, () => console.log(`Example app listening on port ${port}!`))								
+		}
+
+		
+}
+export { App };
+
