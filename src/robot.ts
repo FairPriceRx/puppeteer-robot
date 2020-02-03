@@ -35,19 +35,28 @@ class PuppeteerRobot extends Doer {
 		})
 	}
 
+    async goto(url:string, opts?:any) {
+		this.currentPage = await this.browser.newPage()
+        return this.currentPage
+            .goto(url,
+				  opts?opts:{ waitUntil: 'networkidle2' })
+    }
+
 	/**
 	 * Helper method that correctly sets value
 	 * on INPUT element
 	 */
-	async val(id:string, val:string){
+	async val(id:string, val?:string){
 		const el = await this.currentPage.$(id);
 		if((el != null)
 		   && (val != '' && val != null)){
-            await this.currentPage
+            return this.currentPage
                 .evaluate((id:string, val:string) =>
                           (document.querySelector(id) as HTMLInputElement)
                           .value = val, id, val)
-		}
+		} else {
+            return this.currentPage.$eval(id, (el:HTMLInputElement) => el.value)
+        }
 	}
 	
 	/**
@@ -82,3 +91,4 @@ class PuppeteerRobot extends Doer {
 }
 
 export { PuppeteerRobot }
+
