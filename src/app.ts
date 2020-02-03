@@ -1,17 +1,22 @@
 // This is the application entry point
-import express from 'express'
-import dotenv from 'dotenv-flow'
+import * as express from 'express'
+import * as dotenv from 'dotenv-flow'
 dotenv.config()
 
 import { PayPalRobot } from './payPalRobot'
 
 class App {
-		constructor(arg) {
+		protected server:any;
+		protected server_port:number;
+
+		protected botPP:any;
+		
+		constructor() {
 				const that = this;
         console.log('Robot App is running!');
 
-				const server = express()
-				const port = process.env.PUPPETEER_SERVER_PORT || 8080
+				this.server = express()
+				this.server_port = parseInt(process.env.PUPPETEER_SERVER_PORT) || 8080
 
 				const botPP = that.botPP = new PayPalRobot({
 						proxyUrl: process.env.PROXY_CFG,
@@ -21,14 +26,12 @@ class App {
 								'--force-device-scale-factor=1.0',
 								'--display=:1'
 						]
-				})
-				botPP.init()
-				
+				})				
 
-				server.get('/', (req, res) => res.send('live'))
-				server.post('/paypal/create_order',(req, res) => {
-						req.on('data', async (order) => {
-								const jsonOrder = JSON.parse(order)
+				this.server.get('/', (req:any, res:any) => res.send('live'))
+				this.server.post('/paypal/create_order',(req:any, res:any) => {
+						req.on('data', async (order:string) => {
+								const jsonOrder:any = JSON.parse(order)
 								console.log(`Sending order to server: ${order}`)
 								// logging in
 								await botPP.login(process.env.PP_LOGIN,
@@ -44,11 +47,14 @@ class App {
 								// that = botPP = app.botPP;page = that.currentPage;order = require('./order_json.json')
 						})
 				})
-
-				server.listen(port, () => console.log(`Example app listening on port ${port}!`))								
 		}
 
-		
+		public init(){
+				this.botPP.init()
+				
+				this.server.listen(this.server_port, () => console.log(`Example app listening on port ${this.server_port}!`))
+				
+		}
 }
 export { App };
 
