@@ -27,12 +27,15 @@ class PuppeteerRobot extends Doer {
 		if(this.opts.userDataDir){
 			args.push(`--user-data-dir=${this.opts.userDataDir}`)
 		}
-		
-		this.browser = await puppeteer.launch({
+			
+		const launchOpts = {
 			headless: this.opts.headless,
 			slowMo: this.opts.slowMo,
 			args: args
-		})
+		}
+			
+  	console.log('Launching Puppeteer with options', launchOpts)
+		this.browser = await puppeteer.launch(launchOpts)
 	}
 
     async goto(url:string, opts?:any) {
