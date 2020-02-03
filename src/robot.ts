@@ -1,13 +1,13 @@
 import * as puppeteer from 'puppeteer';
-const ProxyChain = require('proxy-chain');
+const ProxyChain:any = require('proxy-chain');
 
 const { all } = Promise;
 
 import { Doer, AsyncFunction } from './doer'
 
 class PuppeteerRobot extends Doer {
-	protected opts:any
-	protected browser:any    
+	public opts:any
+	public browser:any
     
 	constructor(opts:any) {
         super()
@@ -15,7 +15,9 @@ class PuppeteerRobot extends Doer {
 	}
 
 	async init(){
-		const args = this.opts.args || []
+		this.opts.args = this.opts.args || []
+        console.log('ARGS:', this.opts)
+        const args = this.opts.args
 		if(this.opts.proxyUrl){
 			const newProxyUrl = await ProxyChain.anonymizeProxy(this.opts.proxyUrl);
 			console.log(newProxyUrl);
