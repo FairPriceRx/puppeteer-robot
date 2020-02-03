@@ -44,14 +44,14 @@ const countryTelephoneCode = require('country-telephone-code')
 const lookup = require('country-code-lookup')
 
 class PayPalRobot extends PuppeteerRobot {
-    public currentPage: any
     public browser: any
     
 	async login(login:string, password:string) {
 		// LOGIN
 		const that = this // common technique used to simplify REPL invocation
 		const page = that.currentPage = await that.browser.newPage();
-		await this.doInSeries([
+		await this.series(
+            'Login to PayPal',
 			async () => page.setViewport({
 				width: 1280,
 				height: 1024,
@@ -63,7 +63,7 @@ class PayPalRobot extends PuppeteerRobot {
 			
 
 			async () => page.waitFor(700),
-			async () => that.safeSetVal(page, '#email',
+			async () => that.val('#email',
 									 process.env.PP_LOGIN),
 			async () => page.$('#btnNext')
 				.then((p:any) => {
@@ -75,18 +75,19 @@ class PayPalRobot extends PuppeteerRobot {
 			async () => page.$('#password')
 				.then((p:any) => {
 					if(p){
-						return that.doInSeries([
-							async () => that.safeType(page, '#password',
+						return that.series(
+                            'Entering password and hitting [LOGIN] button',
+							async () => that.type('#password',
 												   process.env.PP_PASSWD),
 							async () => page.waitFor(1000),
 							async () => page.$eval('#btnLogin',
 												(el:any) =>
 												el.click()),
 							async () => page.waitFor(5000) // change to waitForNavigation
-						])
+						)
 					} else return Promise.resolve()
 				})
-		])
+		)
 	}
 
 	async createOrder(order:any){
@@ -100,14 +101,14 @@ class PayPalRobot extends PuppeteerRobot {
 		await page.goto('https://www.paypal.com/invoice/create', { waitUntil: 'networkidle2' });
 
 		// invoice information
-		await that.safeSetVal(page, '#invoiceNumber', order.order_id)
+		await that.val('#invoiceNumber', order.order_id)
 
-		await that.safeSetVal(page, '#issueDate', order.order_date)
+		await that.val('#issueDate', order.order_date)
 		await page.keyboard.down('Enter');
 		await page.keyboard.up('Enter');
 		await page.select('#invoiceTerms', 'noduedate')
 		
-		await that.safeType(page,'#reference','')
+		await that.type('#reference','')
 
 		await page.focus('input[placeholder="Email address or name"]')
 		await page.keyboard.type(order.order_customer_email)
@@ -121,11 +122,11 @@ class PayPalRobot extends PuppeteerRobot {
 
 		await page.waitForSelector('#recipientEmail')
 		
-		await that.safeSetVal(page, '#recipientEmail', order.order_customer_email)
-		await that.safeSetVal(page, '#bill_first_name', order.order_customer_name)
-		await that.safeSetVal(page, '#bill_last_name', order.order_customer_surname)
+		await that.val('#recipientEmail', order.order_customer_email)
+		await that.val('#bill_first_name', order.order_customer_name)
+		await that.val('#bill_last_name', order.order_customer_surname)
 		await page.select("#billing_phone_country", new String(countryTelephoneCode(order.order_customer_country_code)))
-		await that.safeSetVal(page, '#bill_phone', order.order_customer_phone)
+		await that.val('#bill_phone', order.order_customer_phone)
 		await page.$eval('.reciEditHead.reciHead', (el:any) => el.click())
 		await page.waitFor(700)
 
@@ -134,19 +135,19 @@ class PayPalRobot extends PuppeteerRobot {
 		await page.select('#billing_country_code',
 						  order.order_customer_country_code),
 
-		await that.safeType(page,'#billing_state',
+		await that.type('#billing_state',
 							order.order_customer_state)
 
-		await that.safeSetVal(page, '#billing_city',
+		await that.val('#billing_city',
 							  order.order_customer_city)
 		
- 		await that.safeSetVal(page, '#billing_line1',
+ 		await that.val('#billing_line1',
 							  order.order_customer_address)
 		
-		await that.safeSetVal(page, '#billing_line2',
+		await that.val('#billing_line2',
 							  order.order_customer_address2)
 		
-		await that.safeSetVal(page, '#billing_postal_code',
+		await that.val('#billing_postal_code',
 							  order.order_customer_zip)
 		
 		await page.$eval('.reciEditHead.shipHead', (el:any) => el.click())
@@ -170,16 +171,16 @@ class PayPalRobot extends PuppeteerRobot {
 		
 		await page.waitForSelector('#itemName_0')
 
-		await that.safeSetVal(page,'#itemName_0', `Delivery Service #[${order.order_id}]`)
-		await that.safeSetVal(page,'#itemQty_0', '1')
-		await that.safeSetVal(page, '#itemPrice_0', order.order_total)
+		await that.val('#itemName_0', `Delivery Service #[${order.order_id}]`)
+		await that.val('#itemQty_0', '1')
+		await that.val('#itemPrice_0', order.order_total)
 
 		if(parseInt(order.order_total) > parseInt(process.env.MIN_DISCOUNT_AMOUNT)){
-			await that.safeSetVal(page, '#invDiscount', process.env.DISCOUNT)
+			await that.val('#invDiscount', process.env.DISCOUNT)
 		}
 
 		if(order.order_shipping_cost){
-			await that.safeSetVal(page, '#shippingAmount',
+			await that.val('#shippingAmount',
 								  order.order_shipping_cost as string)
 		}
 

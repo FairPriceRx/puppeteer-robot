@@ -1,13 +1,14 @@
-import * as puppeteer from 'puppeteer';
-const ProxyChain:any = require('proxy-chain');
+import * as puppeteer from 'puppeteer'
+import { Browser } from 'puppeteer'
+const ProxyChain:any = require('proxy-chain')
 
-const { all } = Promise;
-
+const { all } = Promise
 import { Doer, AsyncFunction } from './doer'
 
 class PuppeteerRobot extends Doer {
 	public opts:any
-	public browser:any
+	public browser:Browser
+    public currentPage: any
     
 	constructor(opts:any) {
         super()
@@ -16,7 +17,6 @@ class PuppeteerRobot extends Doer {
 
 	async init(){
 		this.opts.args = this.opts.args || []
-        console.log('ARGS:', this.opts)
         const args = this.opts.args
 		if(this.opts.proxyUrl){
 			const newProxyUrl = await ProxyChain.anonymizeProxy(this.opts.proxyUrl);
@@ -39,18 +39,14 @@ class PuppeteerRobot extends Doer {
 	 * Helper method that correctly sets value
 	 * on INPUT element
 	 */
-	async safeSetVal(page:any, id:string, val:string){
-		const el = await page.$(id);
+	async val(id:string, val:string){
+		const el = await this.currentPage.$(id);
 		if((el != null)
 		   && (val != '' && val != null)){
-			return this.doInSeries([
-				async () =>
-                    page.focus(id),
-				async () =>
-                    page.evaluate((id:string, val:string) =>
-                                  (document.querySelector(id) as HTMLInputElement).value = val, id, val),
-                //								page.type(id, val, { delay: 25 })
-			])
+            await this.currentPage
+                .evaluate((id:string, val:string) =>
+                          (document.querySelector(id) as HTMLInputElement)
+                          .value = val, id, val)
 		}
 	}
 	
@@ -59,10 +55,10 @@ class PuppeteerRobot extends Doer {
 	 * on INPUT/SELECT elements. If element is not found
 	 * no problem is thrown
 	 */
-	async safeType(page:any, id:string, val:string){
-		if((page.$(id) != null) &&
+	async type(id:string, val:string){
+		if((this.currentPage.$(id) != null) &&
 		   (val != null) && (val != '')){
-			return page.type(id, val)
+			return this.currentPage.type(id, val)
 		}
 	}
 	/**
@@ -70,31 +66,19 @@ class PuppeteerRobot extends Doer {
 	 * on INPUT/SELECT elements. If element is not found
 	 * no problem is thrown
 	 */
-	async safeClick(page:any, id:string){
-		if(page.$(id) != null){
-			const el:any = await page.$(id)
-			let elPos = await page.evaluate((el:any) => {
+	async click(id:string){
+		if(this.currentPage.$(id) != null){
+			const el:any = await this.currentPage.$(id)
+			let elPos = await this.currentPage.evaluate((el:any) => {
 				const {top, left} = el.getBoundingClientRect();
 				return {top, left};
 			}, el);
 
-			await page.mouse.move(elPos.left + 2, elPos.top + 2);
-			await page.mouse.down(elPos.left + 2, elPos.top + 2);
-			await page.mouse.up();
+			await this.currentPage.mouse.move(elPos.left + 2, elPos.top + 2);
+			await this.currentPage.mouse.down(elPos.left + 2, elPos.top + 2);
+			await this.currentPage.mouse.up();
 		}
-	}
-
-	async doInSeries(tasks:AsyncFunction[]){
-		return tasks.reduce((promiseChain:Promise<any>, currentTask:AsyncFunction) => {
-			return promiseChain
-				.then((chainResults:any[]) =>
-					  currentTask()
-					  .then((currentResult:any) =>
-							[ ...chainResults, currentResult ])
-					 );
-		}, Promise.resolve([]))				
-	}
-	
+	}	
 }
 
 export { PuppeteerRobot }

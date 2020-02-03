@@ -1,5 +1,5 @@
-import { PuppeteerRobot } from '../src/robot';
-import { expect } from 'chai';
+import { PuppeteerRobot } from '../src/robot' 
+import { expect } from 'chai'
 
 describe('Awesome app', () => {
     let robot:PuppeteerRobot

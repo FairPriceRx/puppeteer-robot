@@ -7,7 +7,7 @@ describe('Doer class', function(){
 	it('should create an instance', () => {
 		const value = new Doer();
 		expect(value).instanceOf(Doer);
-        expect(Doer.prototype.do).to.not.be.null;
+        expect(Doer.prototype.series).to.not.be.null;
 	});
 
     it('`lastDefined` should return recent item in array', () => {
@@ -24,7 +24,7 @@ describe('Doer class', function(){
         
         const doer =  new Doer()
         const { delay } = doer;
-        doer.do('Test asyncs',
+        doer.series('Test asyncs',
                 async () => 1,
                 async (a:number) => delay(1000),                
                 async (a:number) => a + 1,
