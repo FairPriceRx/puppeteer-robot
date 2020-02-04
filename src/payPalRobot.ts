@@ -53,13 +53,13 @@ class PayPalRobot extends PuppeteerRobot {
 		const page = that.currentPage = await that.browser.newPage();
 		await this.series(
             'Login to PayPal',			
-			async () => page.goto('https://www.paypal.com/us/signin',
+				async () => page.goto('https://www.paypal.com/us/signin',
 								  { waitUntil: 'networkidle2' }),
-			// async () => page.setViewport({
-			// 	width: 1280,
-			// 	height: 1024,
-			// 	deviceScaleFactor: 1
-			// }),
+			async () => page.setViewport({
+				width: 1280,
+				height: 1024,
+				deviceScaleFactor: 1
+			}),
 			
 
 			async () => page.waitFor(700),
@@ -76,24 +76,23 @@ class PayPalRobot extends PuppeteerRobot {
 				.then((p:any) => {
 					if(p){
 						return page.click("#btnNext")
-					} else return Promise.resolve()
+					} else
+							return Promise.resolve()
 				}),
 			async () => page.waitFor(1000),
 			async () => page.$('#password')
 				.then((p:any) => {
-					if(p){
 						return this
 							.series(
 								'Entering password and hitting [LOGIN] button',
-								async () => this.type('#password',
-													  pwd),
+								async () => page.focus('#password'),
+								async () => this.type('#password',  pwd),
 								async () => page.waitFor(1000),
 								async () => page.$eval('#btnLogin',
 													   (el:any) =>
 													   el.click()),
 								async () => page.waitFor(5000) // change to waitForNavigation
 							)
-					} else return Promise.resolve()
 				})
 		);
 	}
