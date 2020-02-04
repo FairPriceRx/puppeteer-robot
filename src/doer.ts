@@ -32,6 +32,7 @@ class Doer {
         }
         return undefined
     }
+		
     async delay(ms:number) {
         return new Promise((resolve:any) => setTimeout(resolve, ms));
     }
