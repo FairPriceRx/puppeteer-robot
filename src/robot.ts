@@ -1,5 +1,6 @@
 import * as puppeteer from 'puppeteer'
-import { Browser } from 'puppeteer'
+
+import { Browser, Page } from 'puppeteer'
 const ProxyChain:any = require('proxy-chain')
 
 const { all } = Promise
@@ -38,7 +39,7 @@ class PuppeteerRobot extends Doer {
 		this.browser = await puppeteer.launch(launchOpts)
 	}
 
-    async goto(url:string, opts?:any) {
+    async goto(url:string, opts?:any):Promise<Page> {
 		this.currentPage = await this.browser.newPage()
     await this.currentPage.goto(url,
 																opts?opts:{ waitUntil: 'networkidle2' })
