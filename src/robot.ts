@@ -40,9 +40,9 @@ class PuppeteerRobot extends Doer {
 
     async goto(url:string, opts?:any) {
 		this.currentPage = await this.browser.newPage()
-        return this.currentPage
-            .goto(url,
-				  opts?opts:{ waitUntil: 'networkidle2' })
+    await this.currentPage.goto(url,
+																opts?opts:{ waitUntil: 'networkidle2' })
+				return this.currentPage
     }
 
 	/**

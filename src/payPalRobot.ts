@@ -50,49 +50,57 @@ class PayPalRobot extends PuppeteerRobot {
 		// LOGIN
 		const that = this // common technique used to simplify REPL invocation
 		const page = that.currentPage = await that.browser.newPage();
-		await this.series(
-            'Login to PayPal',
-			async () => page.setViewport({
-				width: 1280,
-				height: 1024,
-				deviceScaleFactor: 1
-			}),
-			
-			async () => page.goto('https://www.paypal.com/us/signin',
-							   { waitUntil: 'networkidle2' }),
-			
+			await this.series(
+          'Login to PayPal',
+					// async () => page.setViewport({
+					// 	width: 1280,
+					// 	height: 1024,
+					// 	deviceScaleFactor: 1
+					// }),
+					
+					async () => page.goto('https://www.paypal.com/us/signin',
+																{ waitUntil: 'networkidle2' }),
+					
 
-			async () => page.waitFor(700),
-			async () => that.val('#email',
-									 process.env.PP_LOGIN),
-			async () => page.$('#btnNext')
-				.then((p:any) => {
-					if(p){
-						return page.click("#btnNext")
-					} else return Promise.resolve()
-				}),
-			async () => page.waitFor(1000),
-			async () => page.$('#password')
-				.then((p:any) => {
-					if(p){
-						return that.series(
-                            'Entering password and hitting [LOGIN] button',
-							async () => that.type('#password',
-												   process.env.PP_PASSWD),
-							async () => page.waitFor(1000),
-							async () => page.$eval('#btnLogin',
-												(el:any) =>
-												el.click()),
-							async () => page.waitFor(5000) // change to waitForNavigation
-						)
-					} else return Promise.resolve()
-				})
-		)
+					async () => page.waitFor(700),
+					async () => this.fillLoginForm(process.env.PP_LOGIN,
+																			 process.env.PP_PASSWORD, page)
+			)
 	}
+		async fillLoginForm(login:string, pwd:string, page:any){				
+				return this.series(
+						'Filling login form',
+						async () => this.val('#email',
+																 login),
+						async () => page.$('#btnNext')
+								.then((p:any) => {
+										if(p){
+												return page.click("#btnNext")
+										} else return Promise.resolve()
+								}),
+						async () => page.waitFor(1000),
+						async () => page.$('#password')
+								.then((p:any) => {
+										if(p){
+												return this
+														.series(
+																'Entering password and hitting [LOGIN] button',
+																async () => this.type('#password',
+																											pwd),
+																async () => page.waitFor(1000),
+																async () => page.$eval('#btnLogin',
+																											 (el:any) =>
+																											 el.click()),
+																async () => page.waitFor(5000) // change to waitForNavigation
+														)
+										} else return Promise.resolve()
+								})
+				);
+		}
 
-	async createOrder(order:any){
-		const that = this // common technique used to simplify REPL invocation
-		let page = that.currentPage
+		async createOrder(order:any){
+				const that = this // common technique used to simplify REPL invocation
+				let page = that.currentPage
 		order.order_customer_country
 			= lookup.byInternet(order.order_customer_country_code).country
 		
