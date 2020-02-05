@@ -34,7 +34,7 @@ class App {
 			req.on('data', async (order:string) => {
 				const jsonOrder:any = JSON.parse(order)
 				console.log(`Sending order to server: ${order}`)
-				// logging in
+			    // logging in
 				await this.botPP.login(process.env.PP_LOGIN, process.env.PP_PASSWD)
 
 				await this.botPP.createOrder(jsonOrder)
@@ -51,6 +51,7 @@ class App {
 
 	public async init(){
 		await this.botPP.init()
+		console.log(`Login info: ${process.env.PP_LOGIN} and ${process.env.PP_PASSWD}`)
 		
 		this.server.listen(this.server_port, () =>
                            console.log(`Example app listening on port ${this.server_port}!`))
