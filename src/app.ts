@@ -24,7 +24,7 @@ class App {
 			headless: false,
 			slowMo: 25,
 			args: [
-				'--force-device-scale-factor=1.0',
+				'--force-device-scale-factor=0.5',
 				'--display=:1'
 			]
 		})
@@ -35,8 +35,7 @@ class App {
 				const jsonOrder:any = JSON.parse(order)
 				console.log(`Sending order to server: ${order}`)
 				// logging in
-				await this.botPP.login(process.env.PP_LOGIN,
-									   process.env.PP_PASSWD)
+				await this.botPP.login(process.env.PP_LOGIN, process.env.PP_PASSWD)
 
 				await this.botPP.createOrder(jsonOrder)
 
