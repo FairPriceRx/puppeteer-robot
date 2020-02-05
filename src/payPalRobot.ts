@@ -3,7 +3,7 @@
  *
  * @desc Automate PayPal order creatinon
 
- ORDER SAMPLE:
+ORDER SAMPLE:
 {
 		"order_id": "721",
 		"order_date": "13/01/2020",
@@ -135,6 +135,8 @@ class PayPalRobot extends PuppeteerRobot {
 
     async fillRecipientInformationForm_Shipping(order:any, page: Page): Promise<any> {
 		await page.$eval('#sameBillingShipping', (check:any) => check.click())
+        await page.waitFor(2000) // let information to be copied
+		await page.$eval('#saveShippingToContact', (check:any) => check.click())        
         return Promise.resolve(true) // returning fake `true`        
     }
 
