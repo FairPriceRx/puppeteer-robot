@@ -47,10 +47,10 @@ const lookup = require('country-code-lookup')
 class PayPalRobot extends PuppeteerRobot {
     public browser: any
     
-	async fillLoginForm(login:string, pwd:string, page:Page){				
+	async fillLoginForm(login:string, pwd:string, page:Page){
 		return this.series(
 			'Filling login form with login and password',
-			async () => this.val('#email', login),
+			async () => this.type('#email', login),
 			async () => page.$('#btnNext'),
 			async (p:any) => {
 				if(p){
@@ -81,7 +81,14 @@ class PayPalRobot extends PuppeteerRobot {
 			}),
 			
 			async () => page.waitFor(700),
-			async () => page.url() === 'https://www.paypal.com/us/signin'? this.fillLoginForm(login, password, page):Promise.resolve(true)
+			async () => {
+                console.log(page.url());
+                if(page.url() === 'https://www.paypal.com/us/signin'){
+                    return this.fillLoginForm(login, password, page)
+                } else {
+                    return Promise.resolve(true)
+                }
+            }
 		)
 	}
 
@@ -160,7 +167,7 @@ class PayPalRobot extends PuppeteerRobot {
 		await page.waitFor(700)
         
         await this.fillRecipientInformationForm_Language(order, page)
-//        await page.waitFor(60000 * 1)
+        await page.waitFor(60000 * 1)
 
 		await page.$eval('#saveRecInfo', (check:any) => check.click())
 		await page.waitFor(700)

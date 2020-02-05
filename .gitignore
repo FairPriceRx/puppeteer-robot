@@ -1,9 +1,10 @@
 /node_modules/
 /out/
-/src/.env.local
+/.env.local
 /src/*.png
 /yarn.lock
 /package-lock.json
 /*.log
 /**/*.js
 /**/*.js.map
+

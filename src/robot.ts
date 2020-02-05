@@ -68,8 +68,7 @@ class PuppeteerRobot extends Doer {
 	 * no problem is thrown
 	 */
 	async type(id:string, val:string){
-		if((this.currentPage.$(id) != null) &&
-		   (val != null) && (val != '')){
+		if((val != null) && (val != undefined) && (val != '')){
             await this.currentPage.focus(id)
 			return this.currentPage.type(id, val, {delay: 25})
 		}
