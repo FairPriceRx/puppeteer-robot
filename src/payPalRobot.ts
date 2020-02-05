@@ -50,7 +50,7 @@ class PayPalRobot extends PuppeteerRobot {
 	async fillLoginForm(login:string, pwd:string, page:Page){				
 		return this.series(
 			'Filling login form with login and password',
-			async () => this.type('#email', login),
+			async () => this.val('#email', login),
 			async () => page.$('#btnNext'),
 			async (p:any) => {
 				if(p){
@@ -80,9 +80,8 @@ class PayPalRobot extends PuppeteerRobot {
 				deviceScaleFactor: 1
 			}),
 			
-
 			async () => page.waitFor(700),
-			async () => this.fillLoginForm(login, password, page)
+			async () => page.url() === 'https://www.paypal.com/us/signin'? this.fillLoginForm(login, password, page):Promise.resolve(true)
 		)
 	}
 
@@ -94,6 +93,7 @@ class PayPalRobot extends PuppeteerRobot {
 		await this.val('#bill_last_name', order.order_customer_surname)
 		await page.select("#billing_phone_country", countryTelephoneCode(order.order_customer_country_code)[0] as string)
 		await this.val('#bill_phone', order.order_customer_phone)
+		await page.$eval('#saveToContactBook', (check:any) => check.click())
         return Promise.resolve(true) // returning fake `true`
     }
     
@@ -103,8 +103,10 @@ class PayPalRobot extends PuppeteerRobot {
 		// setting Billing Info
 		await page.select('#billing_country_code',
 						  order.order_customer_country_code),
-        await page.waitFor(1000) // let control change
-		await page.type('#billing_state',
+        
+        await page.waitFor(2000) // let state control change
+        
+		await this.type('#billing_state',
 						  order.order_customer_state)
 
 		await this.val('#billing_city',
@@ -155,7 +157,8 @@ class PayPalRobot extends PuppeteerRobot {
 		await page.waitFor(700)
         
         await this.fillRecipientInformationForm_Language(order, page)
-        
+        await page.waitFor(60000 * 1)
+
 		await page.$eval('#saveRecInfo', (check:any) => check.click())
 		await page.waitFor(700)
 
@@ -210,19 +213,18 @@ class PayPalRobot extends PuppeteerRobot {
             'Creating order',
             async () => this.goto('https://www.paypal.com/invoice/create', { waitUntil: 'networkidle2' }),
 
-            async() => page = that.currentPage,
+            async () => page = that.currentPage,
 			async () => page.setViewport({
 				width: 1280,
-				height: 1024,
-				deviceScaleFactor: 0.50
+				height: 1024
 			}),
             
-            async() => this.fillCreateInvoiceForm(order, page),        
-            async() => page.waitForSelector('#addNewBilling'),
-            async() => page.$eval('#addNewBilling', (el:any) => el.click()),
-            async() => this.fillRecipientInformationForm(order, page),
-            async() => this.fillOrderDetailsForm(order, page),
-            async() => {
+            async () => this.fillCreateInvoiceForm(order, page),        
+            async () => page.waitForSelector('#addNewBilling'),
+            async () => page.$eval('#addNewBilling', (el:any) => el.click()),
+            async () => this.fillRecipientInformationForm(order, page),
+            async () => this.fillOrderDetailsForm(order, page),
+            async () => {
 		        if(await page.$('#sendSplitButton')){
 			        await page.evaluate(() => {
 				        var el = document.querySelector('#sendSplitButton')

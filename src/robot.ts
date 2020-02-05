@@ -28,22 +28,21 @@ class PuppeteerRobot extends Doer {
 		if(this.opts.userDataDir){
 			args.push(`--user-data-dir=${this.opts.userDataDir}`)
 		}
-			
+		
 		const launchOpts = {
 			headless: this.opts.headless,
 			slowMo: this.opts.slowMo,
 			args: args
 		}
-			
-  	console.log('Launching Puppeteer with options', launchOpts)
+		
+  	    console.log('Launching Puppeteer with options', launchOpts)
 		this.browser = await puppeteer.launch(launchOpts)
 	}
 
     async goto(url:string, opts?:any):Promise<Page> {
 		this.currentPage = await this.browser.newPage()
-    await this.currentPage.goto(url,
-																opts?opts:{ waitUntil: 'networkidle2' })
-				return this.currentPage
+		await this.currentPage.goto(url,opts?opts:{ waitUntil: 'networkidle2' })
+		return this.currentPage
     }
 
 	/**
@@ -71,7 +70,8 @@ class PuppeteerRobot extends Doer {
 	async type(id:string, val:string){
 		if((this.currentPage.$(id) != null) &&
 		   (val != null) && (val != '')){
-				return this.currentPage.type(id, val, {delay: 25})
+            await this.currentPage.focus(id)
+			return this.currentPage.type(id, val, {delay: 25})
 		}
 	}
 	/**
