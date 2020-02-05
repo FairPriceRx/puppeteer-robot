@@ -105,9 +105,12 @@ class PayPalRobot extends PuppeteerRobot {
 						  order.order_customer_country_code),
         
         await page.waitFor(2000) // let state control change
-        
-		await this.type('#billing_state',
-						  order.order_customer_state)
+
+        if(order.order_customer_country_code === 'US'){
+            // trying to set state for US only
+		    await this.type('#billing_state',
+						    order.order_customer_state)
+        }
 
 		await this.val('#billing_city',
 					   order.order_customer_city)
