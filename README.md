@@ -21,14 +21,14 @@ This is automated PayPal order creating robot. Supports login, createOrder opera
 	$ cd puppeteer-robot
 	$ yarn
 	$ yarn test # make sure tests does not fail
-	$ cp src/.env src/.env.local # now edit .env.local putting correct values to all keys
+	$ cp .env .env.local # now edit .env.local putting correct values to all keys
 	$ yarn start
 ``` 
 
 ## Configuration
 
-Configuration options are all set via environment variables (src/.env.local file)
-During installtion phase please copy `src/.env` to `src/.env.local`
+Configuration options are all set via environment variables (.env.local file)
+During installtion phase please copy `.env` to `.env.local`
 *NOTE!* Never store `.env.local` or any other files containing significant settings
 (logins/passwords and such) into Git repository!
 In current version `.env.local` is globally ignored via `.gitignore`
