@@ -35,7 +35,7 @@ class PuppeteerRobot extends Doer {
 			args: args
 		}
 		
-  	    console.log('Launching Puppeteer with options', launchOpts)
+//  	    console.log('Launching Puppeteer with options', launchOpts)
 		this.browser = await puppeteer.launch(launchOpts)
 	}
 

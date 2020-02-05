@@ -17,18 +17,17 @@ This is automated PayPal order creating robot. Supports login, createOrder opera
 
 ### Cloning, building and running robot
 ```
-	$ git clone https://github.com/FairPriceRx/puppeteer-robot.git`
+	$ git clone https://github.com/FairPriceRx/puppeteer-robot.git
 	$ cd puppeteer-robot
 	$ yarn
 	$ yarn test # make sure tests does not fail
 	$ cp src/.env src/.env.local # now edit .env.local putting correct values to all keys
-	$ cd src
-	$ $(npm bin)/tsc && node index.js	
+	$ yarn start
 ``` 
 
 ## Configuration
 
-Configuration options all are set via environment variables (src/.env.local file)
+Configuration options are all set via environment variables (src/.env.local file)
 During installtion phase please copy `src/.env` to `src/.env.local`
 *NOTE!* Never store `.env.local` or any other files containing significant settings
 (logins/passwords and such) into Git repository!

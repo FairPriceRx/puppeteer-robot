@@ -45,7 +45,7 @@ describe('PayPalRobot', () => {
 				this.timeout(5000)				
 				await robot.init()
 				expect(robot).has.property('opts').not.null;
-        console.log('opts:', robot.opts)
+        //console.log('opts:', robot.opts)
 				expect(robot).has.property('browser').not.null;
 		});
 

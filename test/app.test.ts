@@ -23,7 +23,7 @@ describe('Awesome app', () => {
 		it('should launch browser and local server', async () => {
 				await app.init()
 				expect(app.botPP).has.property('opts').not.null
-        console.log('opts:', app.botPP.opts)
+        //console.log('opts:', app.botPP.opts)
 				expect(app.botPP).has.property('browser').not.null
 
 				return new Promise((resolve) =>

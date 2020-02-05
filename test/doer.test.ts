@@ -1,3 +1,6 @@
+/*
+ * Doer class test file
+ */
 import { Doer, AsyncFunction } from '../src/doer';
 import { expect, should } from 'chai'
 
