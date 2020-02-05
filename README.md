@@ -4,14 +4,55 @@
 
 ## Description
 
+This is automated PayPal order creating robot. Supports login, createOrder operations
+
 ## Installation
+
+### Prerequisties
+- nodejs v13.7.0 or above should be installed
+- recent npm and/or yarn should be installed
+- git should be installed
+- TurboVNC server should be installed and running on display :1 in order to get 
+  `puppeteer-robot` working in non-headless environment
+
+### Cloning, building and running robot
+```
+	$ git clone https://github.com/FairPriceRx/puppeteer-robot.git`
+	$ cd puppeteer-robot
+	$ yarn
+	$ yarn test # make sure tests does not fail
+	$ cp src/.env src/.env.local # now edit .env.local putting correct values to all keys
+	$ cd src
+	$ $(npm bin)/tsc && node index.js	
+``` 
 
 ## Configuration
 
+Configuration options all are set via environment variables (src/.env.local file)
+During installtion phase please copy `src/.env` to `src/.env.local`
+*NOTE!* Never store `.env.local` or any other files containing significant settings
+(logins/passwords and such) into Git repository!
+In current version `.env.local` is globally ignored via `.gitignore`
+
 ## Usage
 
+Once robot is started via `node index.js` it's listening to `8080` port by default
+(PUPPETEER_SERVER_PORT=8080 should be set in `.env.local`)
+
+To invoke PayPal create order routine POST request should be sent to
+http://localhost:8080/paypal/create_order endpoing with JSON in POST message body. If you're going
+to send POST requriest from another machine, make sure endpoing is globally available by setting up
+correct rotings (e.g. via Elastic Load Balancer for AWS)
+
+To check vitality - just test `http://localhost:8080/` endpoint. `live` text should be returned
+
 ## Release Notes
+
 ### 1.0.0
+- Listens on HTTP server for POST requests to `/paypal/create_order`
+- Run puppeteer (Google Chrome), performs Login to PayPal if needed, opens `/invocies/create` PayPal
+  endpoint and create the order using JSON data provided
+- Cyrillic symbols are supported
 
 Fixes/Features:
 - Initial release
