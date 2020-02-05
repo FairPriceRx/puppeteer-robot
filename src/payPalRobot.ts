@@ -47,14 +47,33 @@ const lookup = require('country-code-lookup')
 class PayPalRobot extends PuppeteerRobot {
     public browser: any
     
+	async fillLoginForm(login:string, pwd:string, page:Page){				
+		return this.series(
+			'Filling login form with login and password',
+			async () => this.type('#email', login),
+			async () => page.$('#btnNext'),
+			async (p:any) => {
+				if(p){
+					return page.click("#btnNext")
+				}
+			},
+			async () => page.waitFor(1000),
+			async () => page.waitForSelector('#password'),
+					async () => page.focus('#password'),
+					async () => this.type('#password', pwd),
+					async () => page.waitFor(1000),
+					async () => page.$eval('#btnLogin', (el:any) => el.click()),
+					async () => page.waitFor(5000) // change to waitForNavigation
+		);
+	}
+
 	async login(login:string, password:string) {
 		// LOGIN
 		const that = this // common technique used to simplify REPL invocation
 		const page = that.currentPage = await that.browser.newPage();
 		await this.series(
             'Login to PayPal',			
-				async () => page.goto('https://www.paypal.com/us/signin',
-								  { waitUntil: 'networkidle2' }),
+			async () => page.goto('https://www.paypal.com/us/signin', { waitUntil: 'networkidle2' }),
 			async () => page.setViewport({
 				width: 1280,
 				height: 1024,
@@ -63,38 +82,8 @@ class PayPalRobot extends PuppeteerRobot {
 			
 
 			async () => page.waitFor(700),
-			async () => this.fillLoginForm(process.env.PP_LOGIN,
-										   process.env.PP_PASSWORD, page)
+			async () => this.fillLoginForm(login, password, page)
 		)
-	}
-	async fillLoginForm(login:string, pwd:string, page:Page){				
-		return this.series(
-			'Filling login form',
-			async () => this.val('#email',
-								 login),
-			async () => page.$('#btnNext')
-				.then((p:any) => {
-					if(p){
-						return page.click("#btnNext")
-					} else
-							return Promise.resolve()
-				}),
-			async () => page.waitFor(1000),
-			async () => page.$('#password')
-				.then((p:any) => {
-						return this
-							.series(
-								'Entering password and hitting [LOGIN] button',
-								async () => page.focus('#password'),
-								async () => this.type('#password',  pwd),
-								async () => page.waitFor(1000),
-								async () => page.$eval('#btnLogin',
-													   (el:any) =>
-													   el.click()),
-								async () => page.waitFor(5000) // change to waitForNavigation
-							)
-				})
-		);
 	}
 
     async fillRecipientInformationForm_Header(order: any, page: Page): Promise<any> {
@@ -107,6 +96,7 @@ class PayPalRobot extends PuppeteerRobot {
 		await this.val('#bill_phone', order.order_customer_phone)
         return Promise.resolve(true) // returning fake `true`
     }
+    
     async fillRecipientInformationForm_Billing(order:any, page:Page):Promise<any> {
 		await page.waitForSelector('#billing_country_code')
         
@@ -115,7 +105,7 @@ class PayPalRobot extends PuppeteerRobot {
 						  order.order_customer_country_code),
 
 		await page.select('#billing_state',
-						order.order_customer_state)
+						  order.order_customer_state)
 
 		await this.val('#billing_city',
 					   order.order_customer_city)
