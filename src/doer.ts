@@ -3,7 +3,7 @@ type AsyncFunction = (...args:any[]) => Promise<any>
 class Doer {
 	async series(whatToDo: string, ...args:AsyncFunction[]){
 		if(args.length === 0)
-			throw "Doer.do() should be called with multiple arguments"
+			throw 'Doer.series should be called with multiple arguments'
         let reduceFunc = (promiseChain:Promise<any>, currentTask:AsyncFunction) => 
 			promiseChain
             .then((chainResults:any[]) =>

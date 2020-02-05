@@ -103,8 +103,8 @@ class PayPalRobot extends PuppeteerRobot {
 		// setting Billing Info
 		await page.select('#billing_country_code',
 						  order.order_customer_country_code),
-
-		await page.select('#billing_state',
+        await page.waitFor(1000) // let control change
+		await page.type('#billing_state',
 						  order.order_customer_state)
 
 		await this.val('#billing_city',
@@ -201,29 +201,36 @@ class PayPalRobot extends PuppeteerRobot {
 
 	async createOrder(order:any){
 		const that = this // common technique used to simplify REPL invocation
-		let page = that.currentPage
 		order.order_customer_country
 			= lookup.byInternet(order.order_customer_country_code).country
-		
+
+		let page:Page
 		// ORDER
-		// await page.goto('https://www.paypal.com/invoice/manage', { waitUntil: 'networkidle0' });
-		await page.goto('https://www.paypal.com/invoice/create', { waitUntil: 'networkidle2' });
-		await this.fillCreateInvoiceForm(order, page)
-        
-		await page.waitFor(2000) // PP loads data
-		await page.waitForSelector('#addNewBilling')
+        this.series(
+            'Creating order',
+            async () => this.goto('https://www.paypal.com/invoice/create', { waitUntil: 'networkidle2' }),
 
-		await this.fillRecipientInformationForm(order, page);
-
-        await this.fillOrderDetailsForm(order, page)
-        
-		if(await page.$('#sendSplitButton')){
-			await page.evaluate(() => {
-				var el = document.querySelector('#sendSplitButton')
-				el.scrollIntoView()
-			})
-			await page.$eval("#sendInvoice", (el:any) => el.click())
-		}
+            async() => page = that.currentPage,
+			async () => page.setViewport({
+				width: 1280,
+				height: 1024,
+				deviceScaleFactor: 0.50
+			}),
+            
+            async() => this.fillCreateInvoiceForm(order, page),        
+            async() => page.waitForSelector('#addNewBilling'),
+            async() => page.$eval('#addNewBilling', (el:any) => el.click()),
+            async() => this.fillRecipientInformationForm(order, page),
+            async() => this.fillOrderDetailsForm(order, page),
+            async() => {
+		        if(await page.$('#sendSplitButton')){
+			        await page.evaluate(() => {
+				        var el = document.querySelector('#sendSplitButton')
+				        el.scrollIntoView()
+			        })
+			        await page.$eval("#sendInvoice", (el:any) => el.click())
+		        }
+            })
 	}
 	/**
 	 * Logs out from PayPal and close browser
