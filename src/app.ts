@@ -1,6 +1,8 @@
 // This is the application entry point
 
 import * as express from 'express'
+import { createTerminus } from '@godaddy/terminus'
+
 import * as dotenv from 'dotenv-flow'
 dotenv.config()
 
@@ -52,9 +54,25 @@ class App {
 	public async init(){
 		await this.botPP.init()
 		console.log(`Login info: ${process.env.PP_LOGIN} and ${process.env.PP_PASSWD}`)
+
+        function onSignal () {
+            console.log('server is starting cleanup')
+            // start cleanup of resource, like databases or file descriptors
+        }
+
+        async function onHealthCheck () {
+            // checks if the system is healthy, like the db connection is live
+            // resolves, if health, rejects if not
+        }
+
+        createTerminus(this.server, {
+            signal: 'SIGINT',
+            healthChecks: { '/healthcheck': onHealthCheck },
+            onSignal
+        })        
 		
-		this.server.listen(this.server_port, () =>
-                           console.log(`Example app listening on port ${this.server_port}!`))
+		this.server.listen(this.server_port,
+                           () => console.log(`Example app listening on port ${this.server_port}!`))
 		
 	}
 }
