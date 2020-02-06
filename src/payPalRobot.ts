@@ -68,34 +68,29 @@ class PayPalRobot extends PuppeteerRobot {
 	async login(login:string, password:string) {
 		// LOGIN
 		const that = this // common technique used to simplify REPL invocation
-		const page = that.currentPage = await that.browser.newPage();
+		const page
 		await this.series(
             'Login to PayPal',			
-			async () => page.goto('https://www.paypal.com/us/signin', { waitUntil: 'networkidle2' }),
+			async () => page = this.goto('https://www.paypal.com/us/signin'),
 			async () => page.setViewport({
 				width: 1280,
 				height: 1024,
 				deviceScaleFactor: 1
 			}),
 			
-			async () => page.waitFor(700),
-			async () => {
-                console.log(page.url());
-                if(page.url() === 'https://www.paypal.com/us/signin'){
-                    return this.series(
-                        'Filling login form',
-                        async () => this.fillLoginForm(login, password, page),
-                        // hitting login button
-                        async () => page.$eval('#btnLogin', (el:any) => el.click()),
-			            async () => page.waitFor(5000), // change to waitForNavigation
-                    )
-
-                } else {
-                    return Promise.resolve(true)
-                }					
-            },
-            //
-            async () => page.close()			
+				async () => page.waitFor(700),
+				async () => {
+            console.log(page.url());
+            if(page.url() === 'https://www.paypal.com/us/signin'){
+                return this.series(
+                    'Filling login form',
+                    async () => this.fillLoginForm(login, password, page),
+                    // hitting login button
+                    async () => page.$eval('#btnLogin', (el:any) => el.click()),
+										async () => page.waitFor(5000), // change to waitForNavigation
+                )
+						}
+				},
 		)
 	}
 
@@ -153,8 +148,7 @@ class PayPalRobot extends PuppeteerRobot {
 			await page.select('#lang_country_code', order.order_customer_country_code)
 		}				
 
-		await page.select('#bill_language', 'en_US')
-        
+		await page.select('#bill_language', 'en_US')        
         return Promise.resolve(true) // returning fake `true`        
     }
     
@@ -259,8 +253,8 @@ class PayPalRobot extends PuppeteerRobot {
 	 * Logs out from PayPal and close browser
 	 */
 	async logout(){
-		await this.browser.close();
-	}		
+//		await this.currentPage.close();
+	}
 }
 
 export { PayPalRobot }

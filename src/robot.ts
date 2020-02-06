@@ -40,7 +40,7 @@ class PuppeteerRobot extends Doer {
 	}
 
     async goto(url:string, opts?:any):Promise<Page> {
-		this.currentPage = await this.browser.newPage()
+				this.currentPage = (await this.browser.pages())[0]
 		await this.currentPage.goto(url,opts?opts:{ waitUntil: 'networkidle2' })
 		return this.currentPage
     }
@@ -71,15 +71,14 @@ class PuppeteerRobot extends Doer {
 		if((val != null) && (val != undefined) && (val != '') &&
            // setting value only if different from existing one
            (val != await this.val(id))){
-            return
-            this.series(
+            return this.series(
                 `Cleanup input control and setting ${val} value`,
-                async () => this.currentPage.evaluate((id) => {
-										let el = document.querySelector(id);
-										if(el)
-												el.value = ''
-								}, id),
-                async () => this.currentPage.waitFor(1000),
+                // async () => this.currentPage.evaluate((id:any) => {
+								// 		let el = document.querySelector(id);
+								// 		if(el)
+								// 				el.value = ''
+								// }, id),
+                // async () => this.currentPage.waitFor(1000),
                 async () => this.currentPage.focus(id),
                 async () => this.currentPage.type(id, val, {delay: 25})
             )
