@@ -253,9 +253,6 @@ class PayPalRobot extends PuppeteerRobot {
 		        }
             },
 			async () => page.waitForNavigation(), // change to waitForNavigation
-            async () => page.waitFor(5000),
-            //
-            async () => page.close()
         )
 	}
 	/**

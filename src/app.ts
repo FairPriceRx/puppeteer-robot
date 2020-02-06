@@ -41,17 +41,19 @@ class App {
                     console.log(`New order_id created: ${jsonOrder.order_id}`)
 				}
 				console.log(`Sending order to server: ${order}`)
-			    // logging in
-				await this.botPP.login(process.env.PP_LOGIN, process.env.PP_PASSWD)
+				// logging in
+				await this.botPP.series(
+					'Processing order',
+					async() => this.botPP.login(process.env.PP_LOGIN, process.env.PP_PASSWD),
 
-				await this.botPP.createOrder(jsonOrder)
+					async() => this.botPP.createOrder(jsonOrder),
 
-				await this.botPP.currentPage.waitFor(2000); // waiting for order to be actually send
-				
-				//await botPP.logout() // logs out and close browser
-				res.send('OK')
-
-				// that = botPP = app.botPP;page = that.currentPage;order = require('./order_json.json')
+					async() => this.botPP.currentPage.waitFor(5000), // waiting for order to be actually send
+				    
+					async() => botPP.logout(), // logs out and close browser
+					
+					async() => res.send('OK')
+				)
 			})
 		})
 	}
