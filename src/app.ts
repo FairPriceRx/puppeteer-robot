@@ -45,13 +45,9 @@ class App {
 				await this.botPP.series(
 					'Processing order',
 					async() => this.botPP.login(process.env.PP_LOGIN, process.env.PP_PASSWD),
-
 					async() => this.botPP.createOrder(jsonOrder),
-
 					async() => this.botPP.currentPage.waitFor(5000), // waiting for order to be actually send
-				    
 					async() => this.botPP.logout(), // logs out and close browser
-					
 					async() => res.send('OK')
 				)
 			})
