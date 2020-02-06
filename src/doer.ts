@@ -1,4 +1,4 @@
-type AsyncFunction = (...args:any[]) => Promise<any>
+type AsyncFunction = (...args:any[]) => Promise<any>;
 
 class Doer {
 	async series(whatToDo: string, ...args:AsyncFunction[]){
@@ -23,7 +23,7 @@ class Doer {
                 
                 console.log(`Finished ${screenshotFileName}`)
                 return results
-            })
+            }); 
 	}
     static lastDefined(arr:any[]):any {
         for(let i = arr.length - 1;i >= 0;i--){
@@ -32,11 +32,11 @@ class Doer {
         }
         return undefined
     }
-		
+	
     async delay(ms:number) {
         return new Promise((resolve:any) => setTimeout(resolve, ms));
     }
-        
+    
 }
 
 export { Doer, AsyncFunction }

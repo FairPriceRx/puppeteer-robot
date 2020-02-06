@@ -176,7 +176,7 @@ class PayPalRobot extends PuppeteerRobot {
 		await page.waitFor(700)
         
         await this.fillRecipientInformationForm_Language(order, page)
-//        await page.waitFor(60000 * 1)
+        //        await page.waitFor(60000 * 1)
 
 		await page.$eval('#saveRecInfo', (check:any) => check.click())
 		await page.waitFor(700)

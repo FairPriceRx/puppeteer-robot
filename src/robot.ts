@@ -35,7 +35,7 @@ class PuppeteerRobot extends Doer {
 			args: args
 		}
 		
-//  	    console.log('Launching Puppeteer with options', launchOpts)
+        //  	    console.log('Launching Puppeteer with options', launchOpts)
 		this.browser = await puppeteer.launch(launchOpts)
 	}
 
@@ -68,9 +68,21 @@ class PuppeteerRobot extends Doer {
 	 * no problem is thrown
 	 */
 	async type(id:string, val:string){
-		if((val != null) && (val != undefined) && (val != '')){
-            await this.currentPage.focus(id)
-			return this.currentPage.type(id, val, {delay: 25})
+		if((val != null) && (val != undefined) && (val != '') &&
+           // setting value only if different from existing one
+           (val != await this.val(id))){
+            return
+            this.series(
+                `Cleanup input control and setting ${val} value`,
+                async () => this.currentPage.evaluate((id) => {
+										let el = document.querySelector(id);
+										if(el)
+												el.value = ''
+								}, id),
+                async () => this.currentPage.waitFor(1000),
+                async () => this.currentPage.focus(id),
+                async () => this.currentPage.type(id, val, {delay: 25})
+            )
 		}
 	}
 	/**
@@ -94,4 +106,3 @@ class PuppeteerRobot extends Doer {
 }
 
 export { PuppeteerRobot }
-
