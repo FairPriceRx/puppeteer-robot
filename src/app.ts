@@ -50,7 +50,7 @@ class App {
 
 					async() => this.botPP.currentPage.waitFor(5000), // waiting for order to be actually send
 				    
-					async() => botPP.logout(), // logs out and close browser
+					async() => this.botPP.logout(), // logs out and close browser
 					
 					async() => res.send('OK')
 				)
