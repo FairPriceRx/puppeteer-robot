@@ -35,6 +35,11 @@ class App {
 		this.server.post('/paypal/create_order',(req:any, res:any) => {
 			req.on('data', async (order:string) => {
 				const jsonOrder:any = JSON.parse(order)
+				if(req.header('Random-id')){
+                    // random Integer in [2000:9999] range
+                    jsonOrder.order_id = Math.round(Math.random() * (9999 - 2000) + 2000);
+                    console.log(`New order_id created: ${jsonOrder.order_id}`)
+				}
 				console.log(`Sending order to server: ${order}`)
 			    // logging in
 				await this.botPP.login(process.env.PP_LOGIN, process.env.PP_PASSWD)
@@ -56,20 +61,53 @@ class App {
 		console.log(`Login info: ${process.env.PP_LOGIN} and ${process.env.PP_PASSWD}`)
 
         function onSignal () {
-            console.log('server is starting cleanup')
-            // start cleanup of resource, like databases or file descriptors
+            console.log('server is starting cleanup');
+            return Promise.all([
+                // your clean logic, like closing database connections
+                Promise.resolve() // fake cleanup
+            ]);
+        }
+
+        async function onShutdown () {
+            console.log('cleanup finished, server is shutting down');
         }
 
         async function onHealthCheck () {
-            // checks if the system is healthy, like the db connection is live
-            // resolves, if health, rejects if not
+            return Promise.resolve(
+                // optionally include a resolve value to be included as
+                // info in the health check response
+            )
         }
 
+        function beforeShutdown () {
+            // given your readiness probes run every 5 second
+            // may be worth using a bigger number so you won't
+            // run into any race conditions
+            return new Promise(resolve => {
+                setTimeout(resolve, 5000)
+            })
+        }
+        
         createTerminus(this.server, {
             signal: 'SIGINT',
-            healthChecks: { '/healthcheck': onHealthCheck },
-            onSignal
-        })        
+            healthChecks: {
+                '/healthcheck': onHealthCheck,
+                //                verbatim: true // [optional = false] use object returned from /healthcheck verbatim in response
+            },
+            //            caseInsensitive: false, // [optional] whether given health checks routes are case insensitive (defaults to false) 
+
+            // cleanup options
+            timeout: 1000, // [optional = 1000] number of milliseconds before forceful exiting
+            //            signal,        // [optional = 'SIGTERM'] what signal to listen for relative to shutdown
+            //            signals,       // [optional = []] array of signals to listen for relative to shutdown
+            beforeShutdown,// [optional] called before the HTTP server starts its shutdown
+            onSignal,      // [optional] cleanup function, returning a promise (used to be onSigterm)
+            onShutdown,    // [optional] called right before exiting
+            //onSendFailureDuringShutdown,     // [optional] called before sending each 503 during shutdowns
+            // both
+            logger:console.error.bind(console) // [optional] logger function to be called with errors
+            
+        })
 		
 		this.server.listen(this.server_port,
                            () => console.log(`Example app listening on port ${this.server_port}!`))

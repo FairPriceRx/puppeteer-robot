@@ -59,11 +59,9 @@ class PayPalRobot extends PuppeteerRobot {
 			},
 			async () => page.waitFor(1000),
 			async () => page.waitForSelector('#password'),
-					async () => page.focus('#password'),
-					async () => this.type('#password', pwd),
-					async () => page.waitFor(1000),
-					async () => page.$eval('#btnLogin', (el:any) => el.click()),
-					async () => page.waitFor(5000) // change to waitForNavigation
+			async () => page.focus('#password'),
+			async () => this.type('#password', pwd),
+			async () => page.waitFor(1000)
 		);
 	}
 
@@ -84,11 +82,20 @@ class PayPalRobot extends PuppeteerRobot {
 			async () => {
                 console.log(page.url());
                 if(page.url() === 'https://www.paypal.com/us/signin'){
-                    return this.fillLoginForm(login, password, page)
+                    return this.series(
+                        'Filling login form',
+                        async () => this.fillLoginForm(login, password, page),
+                        // hitting login button
+                        async () => page.$eval('#btnLogin', (el:any) => el.click()),
+			            async () => page.waitFor(5000), // change to waitForNavigation
+                    )
+
                 } else {
                     return Promise.resolve(true)
-                }
-            }
+                }					
+            },
+            //
+            async () => page.close()			
 		)
 	}
 
@@ -169,7 +176,7 @@ class PayPalRobot extends PuppeteerRobot {
 		await page.waitFor(700)
         
         await this.fillRecipientInformationForm_Language(order, page)
-        await page.waitFor(60000 * 1)
+//        await page.waitFor(60000 * 1)
 
 		await page.$eval('#saveRecInfo', (check:any) => check.click())
 		await page.waitFor(700)
@@ -244,7 +251,12 @@ class PayPalRobot extends PuppeteerRobot {
 			        })
 			        await page.$eval("#sendInvoice", (el:any) => el.click())
 		        }
-            })
+            },
+			async () => page.waitForNavigation(), // change to waitForNavigation
+            async () => page.waitFor(5000),
+            //
+            async () => page.close()
+        )
 	}
 	/**
 	 * Logs out from PayPal and close browser
