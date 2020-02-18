@@ -68,10 +68,10 @@ class PayPalRobot extends PuppeteerRobot {
 	async login(login:string, password:string) {
 		// LOGIN
 		const that = this // common technique used to simplify REPL invocation
-		const page
+		let page:Page
 		await this.series(
             'Login to PayPal',			
-			async () => page = this.goto('https://www.paypal.com/us/signin'),
+			async () => page = await this.goto('https://www.paypal.com/us/signin'),
 			async () => page.setViewport({
 				width: 1280,
 				height: 1024,
@@ -224,7 +224,7 @@ class PayPalRobot extends PuppeteerRobot {
 		// ORDER
         this.series(
             'Creating order',
-            async () => this.goto('https://www.paypal.com/invoice/create', { waitUntil: 'networkidle2' }),
+            async () => await this.goto('https://www.paypal.com/invoice/create', { waitUntil: 'networkidle2' }),
 
             async () => page = that.currentPage,
 			async () => page.setViewport({
