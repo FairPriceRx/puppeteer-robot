@@ -7,12 +7,11 @@ import chaiAsPromised = require("chai-as-promised");
 
 describe('PayPalRobot', () => {
     let robot:PayPalRobot
-    before(async () => {
-        use(chaiAsPromised)
-        should();
-    })
 
-    beforeEach('initialize App and Robot', () => {
+    before('initialize App and Robot', () => {
+        use(chaiAsPromised)
+        should()
+        
 		robot = new PayPalRobot({
 			proxyUrl: process.env.PROXY_CFG,
 			headless: false,
@@ -24,7 +23,7 @@ describe('PayPalRobot', () => {
 		})
     })
 
-	afterEach('cleanup browser instance', () => {
+	after('cleanup browser instance', () => {
 		if(robot.browser)
 			robot.browser.close()
 	})
@@ -194,8 +193,6 @@ describe('PayPalRobot', () => {
 					   }),
 					   async () => order = require('./resources/order_brad.json'),
 					   async (order) => robot.fillRecipientInformationForm_Shipping(order, page),
-					   // Testing values
-					   
 					   async () => robot.series(
 						   'Testing Shipping Info page',
 						   async () => robot.val('#shipping_country_code').should.eventually.equal(order.order_shipping_country_code),
