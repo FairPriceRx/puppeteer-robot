@@ -71,10 +71,8 @@ class PayPalRobot extends PuppeteerRobot {
 			},
 			async () => page.waitForSelector('#password'),
 			async () => page.focus('#password'),
-			async () => this.type('#password', pwd),
-			async () => page.waitFor('#invoiceNumber')
-		)
-            .catch(() => console.error('#invoiceNumber component was not found, something goes wrong'));
+			async () => this.type('#password', pwd)
+        )
 	}
 
 	async login(login:string, password:string) {
