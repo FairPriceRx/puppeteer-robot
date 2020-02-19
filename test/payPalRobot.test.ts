@@ -198,18 +198,12 @@ describe('PayPalRobot', () => {
 					   
 					   async () => robot.series(
 						   'Testing Shipping Info page',
-						   async () => robot.val('#shipping_country_code'),
-						   async (it:any) => it.should.equal(order.order_shipping_country_code),
-						   async () => robot.val('#shipping_state'),
-						   async (it:any) => it.should.equal(order.order_shipping_state),
-						   async () => robot.val('#shipping_city'),
-						   async (it:any) => it.should.equal(order.order_shipping_city),
-						   async () => robot.val('#shipping_line1'),
-						   async (it:any) => it.should.equal(order.order_shipping_address_one),
-						   async () => robot.val('#shipping_line2'),
-						   async (it:any) => it.should.equal(order.order_shipping_address_two),
-						   async () => robot.val('#shipping_postal_code'),
-						   async (it:any) => it.should.equal(order.order_shipping_zip),
+						   async () => robot.val('#shipping_country_code').should.eventually.equal(order.order_shipping_country_code),
+						   async () => robot.val('#shipping_state').should.eventually.equal(order.order_shipping_state),
+						   async () => robot.val('#shipping_city').should.eventually.equal(order.order_shipping_city),
+						   async () => robot.val('#shipping_line1').should.eventually.equal(order.order_shipping_address_one),
+						   async () => robot.val('#shipping_line2').should.eventually.equal(order.order_shipping_address_two),
+						   async () => robot.val('#shipping_postal_code').should.eventually.equal(order.order_shipping_zip)
 					   ))												
 	   })
 
