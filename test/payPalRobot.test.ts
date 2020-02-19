@@ -2,22 +2,16 @@ import { PayPalRobot } from '../src/payPalRobot'
 import { Page } from 'puppeteer'
 const countryTelephoneCode = require('country-telephone-code')
 
-import * as chai from "chai";
-var chaiAsPromised = require("chai-as-promised");
-
-chai.use(chaiAsPromised);
-
-// Then either:
-var expect = chai.expect;
-// or:
-var assert = chai.assert;
-// or:
-chai.should();
-// according to your preference of assertion style
+import {should, expect, use} from "chai"
+import chaiAsPromised = require("chai-as-promised");                                                        
 
 describe('PayPalRobot', () => {
     let robot:PayPalRobot
-	
+    before(async () => {
+        use(chaiAsPromised)
+        should();
+    })
+
     beforeEach('initialize App and Robot', () => {
 		robot = new PayPalRobot({
 			proxyUrl: process.env.PROXY_CFG,
@@ -44,7 +38,6 @@ describe('PayPalRobot', () => {
 		this.timeout(5000)				
 		await robot.init()
 		expect(robot).has.property('opts').not.null;
-        //console.log('opts:', robot.opts)
 		expect(robot).has.property('browser').not.null;
 	});
 
@@ -81,6 +74,7 @@ describe('PayPalRobot', () => {
 			// overriding with empty function
 			return Promise.resolve(true) // return fake `true`												
 		}
+        
 		return robot
 			.series('loading Invoice page',
 					async () => robot.goto('file://' + process.cwd() + '/test/resources/Invoice.html'),
@@ -99,26 +93,18 @@ describe('PayPalRobot', () => {
 					async (order) => robot.fillCreateInvoiceForm(order, page),
 					async () => robot.series(
 						'Testing header invoice data',
-						async () => robot.val('#invoiceNumber'),
-						async (it:any) => it.should.equal(order.order_id),
-						async () => robot.val('#issueDate'),
-						async (it:any) => it.should.equal(order.order_date),
-						async () => robot.val('#invoiceTerms'),
-						async (it:any) => it.should.equal('noduedate'),
+						async () => robot.val('#invoiceNumber').should.eventually.equal(order.order_id),
+						async () => robot.val('#issueDate').should.eventually.equal(order.order_date),
+						async () => robot.val('#invoiceTerms').should.eventually.equal('noduedate'),
 						// email
-						async () => robot.val('input[placeholder="Email address or name"]'),
-						async (it:any) => it.should.equal(order.order_customer_email),
+						async () => robot.val('input[placeholder="Email address or name"]').should.eventually.equal(order.order_customer_email),                        
 						async () => robot.series(
 							'Testing details invoice data',
 							async () => robot.fillOrderDetailsForm(order, page),
-							async () => robot.val('#itemName_0'),
-							async (it:any) => it.should.equal(`Delivery Service #${order.order_id}`),
-							async () => robot.val('#itemQty_0'),
-							async (it:any) => it.should.equal('1'),
-							async () => robot.val('#itemPrice_0'),
-							async (it:any) => it.should.equal(order.order_total),
+							async () => robot.val('#itemName_0').should.eventually.equal(`Delivery Service #${order.order_id}`),
+							async () => robot.val('#itemQty_0').should.eventually.equal('1'),
+							async () => robot.val('#itemPrice_0').should.eventually.equal(order.order_total)
 						),
-                        //												async () => robot.delay(30000)
 					))
 	})
 
@@ -191,6 +177,39 @@ describe('PayPalRobot', () => {
 						   async (it:any) => it.should.equal(order.order_customer_address2),
 						   async () => robot.val('#billing_postal_code'),
 						   async (it:any) => it.should.equal(order.order_customer_zip),
+					   ))												
+	   })
+	it('should open RecipientInformation_Shipping, fill data, click buttons',
+	   async function() {
+		   this.timeout(60000) // for that we should NOT use arrow functions
+		   await robot.init()
+		   let page:Page, order:any;
+		   return robot
+			   .series('loading Invoice_RecipientInformation_Billing page',
+					   async () => page = await robot.goto('file://' + process.cwd() + '/test/resources/Invoice_RecipientInformation_Shipping.html'),
+					   async (page) => page.setViewport({
+						   width: 2048,
+						   height: 2048,
+						   deviceScaleFactor: 0.5
+					   }),
+					   async () => order = require('./resources/order_brad.json'),
+					   async (order) => robot.fillRecipientInformationForm_Shipping(order, page),
+					   // Testing values
+					   
+					   async () => robot.series(
+						   'Testing Shipping Info page',
+						   async () => robot.val('#shipping_country_code'),
+						   async (it:any) => it.should.equal(order.order_shipping_country_code),
+						   async () => robot.val('#shipping_state'),
+						   async (it:any) => it.should.equal(order.order_shipping_state),
+						   async () => robot.val('#shipping_city'),
+						   async (it:any) => it.should.equal(order.order_shipping_city),
+						   async () => robot.val('#shipping_line1'),
+						   async (it:any) => it.should.equal(order.order_shipping_address_one),
+						   async () => robot.val('#shipping_line2'),
+						   async (it:any) => it.should.equal(order.order_shipping_address_two),
+						   async () => robot.val('#shipping_postal_code'),
+						   async (it:any) => it.should.equal(order.order_shipping_zip),
 					   ))												
 	   })
 

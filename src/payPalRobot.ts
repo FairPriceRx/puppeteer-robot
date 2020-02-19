@@ -5,36 +5,47 @@
 
 ORDER SAMPLE:
 {
-		"order_id": "721",
-		"order_date": "13/01/2020",
-		"order_total": "641.00",
-		"order_payment_method": "Direct bank transfer",
-		"order_customer_email": "webmaster.t.hrytsenko@gmail.com",
-		"order_customer_phone": "0980004433",
-		"order_customer_name": "Taras",
-		"order_customer_surname": "Hrytsenko",
-		"order_customer_address": "Test street",
-		"order_customer_country": "Ukraine",
-		"order_customer_city": "Kyiv",
-		"order_customer_zip": "023333",
-		"order_items": [
-				{
-						"item_name": "Namenda 20 mg 60 capsules (Generic Memantine Hydrochloride)",
-						"item_quantity": 1,
-						"item_total": "165"
-				},
-				{
-						"item_name": "Alphagan 1.5 mg/ml - 5ml 1 eye drops (Generic Brimonidine Tartrate)",
-						"item_quantity": 2,
-						"item_total": "236"
-				},
-				{
-						"item_name": "Eliquis 2.5 mg 60 tablets (Generic Apixaban)",
-						"item_quantity": 1,
-						"item_total": "240"
-				}
-		]
+  "order_id": "1380",
+  "order_date": "02/06/2020",
+  "order_total": "84.00",
+  "order_subtotal": "84",
+  "order_shipping_cost": "0.00",
+  "order_payment_method": "PayPal/Stripe/AliPay",
+  "order_customer_email": "gutsal.arsen@gmail.com",
+  "order_customer_phone": "+380965996328",
+  "order_customer_name": "Арсен",
+  "order_customer_surname": "Гуцал",
+  "order_customer_address": "Гаи Шевченковские",
+  "order_customer_address2": "Шляхтинецкая 3",
+  "order_customer_country_code": "UA",
+  "order_customer_state": "Тернополь",
+  "order_customer_city": "Тернополь",
+  "order_customer_zip": "46001",
+  "order_billing_first_name": "Арсен",
+  "order_billing_last_name": "Гуцал",
+  "order_billing_address_one": "Гаи Шевченковские",
+  "order_billing_address_two": "Шляхтинецкая 3",
+  "order_billing_country_code": "UA",
+  "order_billing_state": "Тернополь",
+  "order_billing_city": "Тернополь",
+  "order_billing_zip": "46001",
+  "order_shipping_first_name": "Арсен",
+  "order_shipping_last_name": "Гуцал",
+  "order_shipping_address_one": "Гаи Шевченковские",
+  "order_shipping_address_two": "Шляхтинецкая 3",
+  "order_shipping_country_code": "UA",
+  "order_shipping_state": "Тернополь",
+  "order_shipping_city": "Тернополь",
+  "order_shipping_zip": "46001",
+  "order_items": [
+    {
+      "item_name": "Apriso 800 mg 60 tablets (Generic Mesalamine)",
+      "item_quantity": "1",
+      "item_total": "84"
+    }
+  ]
 }
+
 */
 
 
@@ -137,10 +148,17 @@ class PayPalRobot extends PuppeteerRobot {
     }
 
     async fillRecipientInformationForm_Shipping(order:any, page: Page): Promise<any> {
-		await page.$eval('#sameBillingShipping', (check:any) => check.click())
-        await page.waitFor(2000) // let information to be copied
-		await page.$eval('#saveShippingToContact', (check:any) => check.click())        
-        return Promise.resolve(true) // returning fake `true`        
+        return this.series('Filling Shipping part of the form',
+                    async () => this.val('#shipping_first_name', order.order_shipping_first_name),
+                    async () => this.val('#shipping_last_name', order.order_shipping_last_name),
+                    async () => this.val('#shipping_country_code', order.order_shipping_country_code),
+                    async () => this.val('#shipping_line1', order.order_shipping_address_one),
+                    async () => this.val('#shipping_line2', order.order_shipping_address_two),
+                    async () => this.val('#shipping_city', order.order_shipping_city),
+                    async () => this.val('#shipping_state', order.order_shipping_state),
+                    async () => this.val('#shipping_postal_code', order.order_shipping_zip),
+                           async () => page.waitFor(200),
+                           async () => page.$eval('#saveShippingToContact', (check:any) => check.click()))
     }
 
     async fillRecipientInformationForm_Language(order: any, page: Page): Promise<any> {		
