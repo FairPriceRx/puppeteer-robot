@@ -22,7 +22,7 @@
     "tslint": "^6.0.0",
     "tslint-config-airbnb": "^5.11.2",
     "tslint-microsoft-contrib": "^6.2.0",
-    "typedoc": "^0.16.8",
+    "Typedoc": "^0.16.8",
     "typescript": "^3.7.5"
   },
   "repository": {
