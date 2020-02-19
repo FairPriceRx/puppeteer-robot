@@ -50,6 +50,7 @@ class PayPalRobot extends PuppeteerRobot {
 	async fillLoginForm(login:string, pwd:string, page:Page){
 		return this.series(
 			'Filling login form with login and password',
+            async () => page.evaluate(() => (document.querySelector('#email') as HTMLInputElement).value = ''),
 			async () => this.type('#email', login),
 			async () => page.$('#btnNext'),
 			async (p:any) => {
@@ -57,12 +58,12 @@ class PayPalRobot extends PuppeteerRobot {
 					return page.click("#btnNext")
 				}
 			},
-			async () => page.waitFor(1000),
 			async () => page.waitForSelector('#password'),
 			async () => page.focus('#password'),
 			async () => this.type('#password', pwd),
-			async () => page.waitFor(1000)
-		);
+			async () => page.waitFor('#invoiceNumber')
+		)
+            .catch(() => console.error('#invoiceNumber component was not found, something goes wrong'));
 	}
 
 	async login(login:string, password:string) {
@@ -75,22 +76,22 @@ class PayPalRobot extends PuppeteerRobot {
 			async () => page.setViewport({
 				width: 1280,
 				height: 1024,
-				deviceScaleFactor: 1
+				deviceScaleFactor: 0.75
 			}),
 			
-				async () => page.waitFor(700),
-				async () => {
-            console.log(page.url());
-            if(page.url() === 'https://www.paypal.com/us/signin'){
-                return this.series(
-                    'Filling login form',
-                    async () => this.fillLoginForm(login, password, page),
-                    // hitting login button
-                    async () => page.$eval('#btnLogin', (el:any) => el.click()),
-										async () => page.waitFor(5000), // change to waitForNavigation
-                )
-						}
-				},
+			async () => page.waitFor(700),
+			async () => {
+                console.log(page.url());
+                if(page.url() === 'https://www.paypal.com/us/signin'){
+                    return this.series(
+                        'Filling login form',
+                        async () => this.fillLoginForm(login, password, page),
+                        // hitting login button
+                        async () => page.$eval('#btnLogin', (el:any) => el.click()),
+						async () => page.waitFor(5000), // change to waitForNavigation
+                    )
+				}
+			},
 		)
 	}
 

@@ -53,9 +53,9 @@ describe('PayPalRobot', () => {
 		await robot.init()
 		let page:Page;
 		return robot
-			.series('loading test page',										
-					async () => page = await robot.goto('file://' + process.cwd() + '/test/resources/Login.html'),
-					async (page) => page.setViewport({
+			.series('loading test page',
+					async () => robot.goto('file://' + process.cwd() + '/test/resources/Login.html'),
+					async (p) => (page = p).setViewport({
 						width: 2048,
 						height: 2048,
 						deviceScaleFactor: 0.5
@@ -83,8 +83,8 @@ describe('PayPalRobot', () => {
 		}
 		return robot
 			.series('loading Invoice page',
-					async () => page = await robot.goto('file://' + process.cwd() + '/test/resources/Invoice.html'),
-					async (page) => page.setViewport({
+					async () => robot.goto('file://' + process.cwd() + '/test/resources/Invoice.html'),
+					async (p) => (page = p).setViewport({
 						width: 2048,
 						height: 2048,
 						deviceScaleFactor: 0.5

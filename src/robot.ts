@@ -35,13 +35,13 @@ class PuppeteerRobot extends Doer {
 			args: args
 		}
 		
-        //  	    console.log('Launching Puppeteer with options', launchOpts)
+    // console.log('Launching Puppeteer with options', launchOpts)
 		this.browser = await puppeteer.launch(launchOpts)
 	}
 
     async goto(url:string, opts?:any):Promise<Page> {
 				this.currentPage = (await this.browser.pages())[0]
-		await this.currentPage.goto(url,opts?opts:{ waitUntil: 'networkidle2' })
+				await this.currentPage.goto(url,opts?opts:{ waitUntil: 'networkidle2' })
 		return this.currentPage
     }
 
@@ -52,7 +52,7 @@ class PuppeteerRobot extends Doer {
 	async val(id:string, val?:string){
 		const el = await this.currentPage.$(id);
 		if((el != null)
-		   && (val != '' && val != null)){
+		   && (val != null)){
             return this.currentPage
                 .evaluate((id:string, val:string) =>
                           (document.querySelector(id) as HTMLInputElement)
