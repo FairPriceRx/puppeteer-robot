@@ -29,7 +29,7 @@ describe('Awesome app', () => {
 				return new Promise((resolve) =>
 													 http.get({
 															 hostname: 'localhost',
-															 port: app.server_port,
+															 port: app.serverPort,
 															 path: '/',
 															 agent: false  // Create a new agent just for this one request
 													 }, (res) => {

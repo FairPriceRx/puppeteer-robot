@@ -49,214 +49,211 @@ ORDER SAMPLE:
 */
 
 
-import { PuppeteerRobot } from './robot'
-import { Page, ElementHandle } from 'puppeteer'
+import { Page } from 'puppeteer';
+import { PuppeteerRobot } from './robot';
 
-const countryTelephoneCode = require('country-telephone-code')
-const lookup = require('country-code-lookup')
+const countryTelephoneCode = require('country-telephone-code');
+const lookup = require('country-code-lookup');
 
 class PayPalRobot extends PuppeteerRobot {
     public browser: any
-    
-	async fillLoginForm(login:string, pwd:string, page:Page){
-		return this.series(
-			'Filling login form with login and password',
-            async () => page.evaluate(() => (document.querySelector('#email') as HTMLInputElement).value = ''),
-			async () => this.type('#email', login),
-			async () => page.$('#btnNext'),
-			async (p:any) => {
-				if(p){
-					return page.click("#btnNext")
-				}
-			},
-			async () => page.waitForSelector('#password'),
-			async () => page.focus('#password'),
-			async () => this.type('#password', pwd)
-        )
-	}
 
-	async login(login:string, password:string) {
-		// LOGIN
-		const that = this // common technique used to simplify REPL invocation
-		let page:Page
-		return this.series(
-            'Login to PayPal',			
-			async () => this.goto('https://www.paypal.com/us/signin'),
-			async (p) => (page = p).setViewport({
-				width: 1280,
-				height: 1024,
-				deviceScaleFactor: 0.75
-			}),
-			
-			async () => page.waitFor(700),
-			async () => {
-                console.log(page.url());
-                if(page.url() === 'https://www.paypal.com/us/signin'){
-                    return this.series(
-                        'Filling login form',
-                        async () => this.fillLoginForm(login, password, page),
-                        // hitting login button
-                        async () => page.$eval('#btnLogin', (el:any) => el.click()),
-						async () => page.waitFor(5000), // change to waitForNavigation
-                    )
-				}
-			},
-		)
-	}
-
-    async fillRecipientInformationForm_Header(order: any, page: Page): Promise<any> {
-        return this.series('Fill Recipient Information Form Header',
-		            async () => page.waitForSelector('#recipientEmail'),
-		            async () => this.val('#recipientEmail', order.order_customer_email),
-		            async () => this.val('#bill_first_name', order.order_customer_name),
-		            async () => this.val('#bill_last_name', order.order_customer_surname),
-		            async () => page.select("#billing_phone_country", countryTelephoneCode(order.order_customer_country_code)[0] as string),
-		            async () => this.val('#bill_phone', order.order_customer_phone),
-		            async () => page.$eval('#saveToContactBook', (check:any) => check.click()),
-                   )
-    }
-    
-    async fillRecipientInformationForm_Billing(order:any, page:Page):Promise<any> {       
-        return this.series('Fill Recipient Information Form Billing',
-		            async () => page.waitForSelector('#billing_country_code'),        
-		            // setting Billing Info
-		            async () => page.select('#billing_country_code', order.order_customer_country_code),  
-                    async () => page.waitFor(2000), // let state control change
-                    async () => order.order_customer_country_code === 'US'?
-                    this.type('#billing_state', order.order_customer_state):Promise.resolve(true),
-		            async () => this.val('#billing_city', order.order_customer_city),		
- 		            async () => this.val('#billing_line1', order.order_customer_address),
-		            async () => this.val('#billing_line2', order.order_customer_address2),		
-		            async () => this.val('#billing_postal_code', order.order_customer_zip))
+    async fillLoginForm(login:string, pwd:string, page:Page) {
+      return PayPalRobot.series(
+        'Filling login form with login and password',
+        async () => page.evaluate(() => {
+          (document.querySelector('#email') as HTMLInputElement).value = '';
+          return '';
+        }),
+        async () => this.type('#email', login),
+        async () => page.$('#btnNext'),
+        async (p:any) => {
+          if (p) {
+            return page.click('#btnNext');
+          } return Promise.resolve(true);
+        },
+        async () => page.waitForSelector('#password'),
+        async () => page.focus('#password'),
+        async () => this.type('#password', pwd),
+      );
     }
 
-    async fillRecipientInformationForm_Shipping(order:any, page: Page): Promise<any> {
-        return this.series('Filling Shipping part of the form',
-                    async () => this.val('#shipping_first_name', order.order_shipping_first_name),
-                    async () => this.val('#shipping_last_name', order.order_shipping_last_name),
-                    async () => this.val('#shipping_country_code', order.order_shipping_country_code),
-                    async () => this.val('#shipping_line1', order.order_shipping_address_one),
-                    async () => this.val('#shipping_line2', order.order_shipping_address_two),
-                    async () => this.val('#shipping_city', order.order_shipping_city),
-                    async () => this.val('#shipping_state', order.order_shipping_state),
-                    async () => this.val('#shipping_postal_code', order.order_shipping_zip),
-                           async () => page.waitFor(200),
-                           async () => page.$eval('#saveShippingToContact', (check:any) => check.click()))
+    async login(login:string, password:string) {
+      // LOGIN
+      const page:Page = await this.goto('https://www.paypal.com/us/signin');
+
+      return PayPalRobot.series(
+        'Login to PayPal',
+        async () => page.setViewport({
+          width: 1280,
+          height: 1024,
+          deviceScaleFactor: 0.75,
+        }),
+
+        async () => page.waitFor(700),
+        async () => {
+          console.log(page.url());
+          if (page.url() === 'https://www.paypal.com/us/signin') {
+            return PayPalRobot.series(
+              'Filling login form',
+              async () => this.fillLoginForm(login, password, page),
+              // hitting login button
+              async () => page.$eval('#btnLogin', (el:any) => el.click()),
+              async () => page.waitFor(5000), // change to waitForNavigation
+            );
+          } return Promise.resolve(true);
+        },
+      );
     }
 
-    async fillRecipientInformationForm_Language(order: any, page: Page): Promise<any> {		
-		const lang_country_code = await page.$('#lang_country_code')
-		if(lang_country_code){
-			await page.select('#lang_country_code', order.order_customer_country_code)
-		}				
-
-		await page.select('#bill_language', 'en_US')        
-
+    async fillRecipientInformationFormHeader(order: any, page: Page): Promise<any> {
+      return PayPalRobot.series('Fill Recipient Information Form Header',
+        async () => page.waitForSelector('#recipientEmail'),
+        async () => this.val('#recipientEmail', order.order_customer_email),
+        async () => this.val('#bill_first_name', order.order_customer_name),
+        async () => this.val('#bill_last_name', order.order_customer_surname),
+        async () => page.select('#billing_phone_country', countryTelephoneCode(order.order_customer_country_code)[0] as string),
+        async () => this.val('#bill_phone', order.order_customer_phone),
+        async () => page.$eval('#saveToContactBook', (check:any) => check.click()));
     }
-    
+
+    async fillRecipientInformationFormBilling(order: any, page:Page):Promise<any> {
+      return PayPalRobot.series('Fill Recipient Information Form Billing',
+        async () => page.waitForSelector('#billing_country_code'),
+        // setting Billing Info
+        async () => page.select('#billing_country_code', order.order_customer_country_code),
+        async () => page.waitFor(2000), // let state control change
+        async () => (order.order_customer_country_code === 'US'
+          ? this.type('#billing_state', order.order_customer_state) : Promise.resolve(true)),
+        async () => this.val('#billing_city', order.order_customer_city),
+        async () => this.val('#billing_line1', order.order_customer_address),
+        async () => this.val('#billing_line2', order.order_customer_address2),
+        async () => this.val('#billing_postal_code', order.order_customer_zip));
+    }
+
+    async fillRecipientInformationFormShipping(order:any, page: Page): Promise<any> {
+      return PayPalRobot.series('Filling Shipping part of the form',
+        async () => this.val('#shipping_first_name', order.order_shipping_first_name),
+        async () => this.val('#shipping_last_name', order.order_shipping_last_name),
+        async () => this.val('#shipping_country_code', order.order_shipping_country_code),
+        async () => this.val('#shipping_line1', order.order_shipping_address_one),
+        async () => this.val('#shipping_line2', order.order_shipping_address_two),
+        async () => this.val('#shipping_city', order.order_shipping_city),
+        async () => this.val('#shipping_state', order.order_shipping_state),
+        async () => this.val('#shipping_postal_code', order.order_shipping_zip),
+        async () => page.waitFor(200),
+        async () => page.$eval('#saveShippingToContact', (check:any) => check.click()));
+    }
+
+    static async fillRecipientInformationFormLanguage(order: any, page: Page): Promise<any> {
+      const langCountryCode = await page.$('#lang_country_code');
+      if (langCountryCode) {
+        await page.select('#lang_country_code', order.order_customer_country_code);
+      }
+
+      await page.select('#bill_language', 'en_US');
+    }
+
     async fillRecipientInformationForm(order:any, page:Page):Promise<any> {
-        
-        await this.fillRecipientInformationForm_Header(order, page)
-        
-		await page.$eval('.reciEditHead.reciHead', (el:any) => el.click())
-		await page.waitFor(700)
+      await this.fillRecipientInformationFormHeader(order, page);
 
-        await this.fillRecipientInformationForm_Billing(order, page)
-        
-		await page.$eval('.reciEditHead.shipHead', (el:any) => el.click())
-		await page.waitFor(700)
+      await page.$eval('.reciEditHead.reciHead', (el:any) => el.click());
+      await page.waitFor(700);
 
-        await this.fillRecipientInformationForm_Shipping(order, page)
+      await this.fillRecipientInformationFormBilling(order, page);
 
-		await page.$eval('.reciEditHead.langHead', (el:any) => el.click())
-		await page.waitFor(700)
-        
-        await this.fillRecipientInformationForm_Language(order, page)
-        //        await page.waitFor(60000 * 1)
+      await page.$eval('.reciEditHead.shipHead', (el:any) => el.click());
+      await page.waitFor(700);
 
-		await page.$eval('#saveRecInfo', (check:any) => check.click())
-		await page.waitFor(700)
+      await this.fillRecipientInformationFormShipping(order, page);
 
-		return Promise.resolve(true) // return fake `true
+      await page.$eval('.reciEditHead.langHead', (el:any) => el.click());
+      await page.waitFor(700);
+
+      await PayPalRobot.fillRecipientInformationFormLanguage(order, page);
+      //        await page.waitFor(60000 * 1)
+
+      await page.$eval('#saveRecInfo', (check:any) => check.click());
+      await page.waitFor(700);
+
+      return Promise.resolve(true); // return fake `true
     }
 
     async fillOrderDetailsForm(order:any, page:Page):Promise<any> {
-		await page.waitForSelector('#itemName_0')
+      await page.waitForSelector('#itemName_0');
 
-		await this.val('#itemName_0', `Delivery Service #${order.order_id}`)
-		await this.val('#itemQty_0', '1')
-		await this.val('#itemPrice_0', order.order_total)
+      await this.val('#itemName_0', `Delivery Service #${order.order_id}`);
+      await this.val('#itemQty_0', '1');
+      await this.val('#itemPrice_0', order.order_total);
 
-		if(parseInt(order.order_total) > parseInt(process.env.MIN_DISCOUNT_AMOUNT)){
-			await this.val('#invDiscount', process.env.DISCOUNT)
-		}
+      if (parseInt(order.order_total, 10) > parseInt(process.env.MIN_DISCOUNT_AMOUNT, 10)) {
+        await this.val('#invDiscount', process.env.DISCOUNT);
+      }
 
-		if(order.order_shipping_cost){
-			await this.val('#shippingAmount',
-						   order.order_shipping_cost as string)
-		}
-        return Promise.resolve(true) // return fake true
+      if (order.order_shipping_cost) {
+        await this.val('#shippingAmount',
+                           order.order_shipping_cost as string);
+      }
+      return Promise.resolve(true); // return fake true
     }
-    
-	async fillCreateInvoiceForm(order:any, page:Page):Promise<any> {
-		// invoice information
-        return this.series('Fill create Invocie Form',
-                    async () => page.waitForSelector('#invoiceNumber'),
-		            async () => this.val('#invoiceNumber', order.order_id),
 
-		            async () => this.val('#issueDate', order.order_date),
-		            async () => page.keyboard.down('Enter'),
-		            async () => page.keyboard.up('Enter'),
-                    async () => page.select('#invoiceTerms', 'noduedate'),
-		            
-		            async () => this.type('#reference',''),
+    async fillCreateInvoiceForm(order:any, page:Page):Promise<any> {
+      // invoice information
+      return PayPalRobot.series('Fill create Invocie Form',
+        async () => page.waitForSelector('#invoiceNumber'),
+        async () => this.val('#invoiceNumber', order.order_id),
 
-		            async () => page.focus('input[placeholder="Email address or name"]'),
-		            async () => page.keyboard.type(order.order_customer_email),
-		            async () => page.keyboard.down('Tab'),
-		            async () => page.keyboard.up('Tab'))
-	}
+        async () => this.val('#issueDate', order.order_date),
+        async () => page.keyboard.down('Enter'),
+        async () => page.keyboard.up('Enter'),
+        async () => page.select('#invoiceTerms', 'noduedate'),
 
-	async createOrder(order:any){
-		const that = this // common technique used to simplify REPL invocation
-		order.order_customer_country
-			= lookup.byInternet(order.order_customer_country_code).country
+        async () => this.type('#reference', ''),
 
-		let page:Page
-		// ORDER
-        this.series(
-            'Creating order',
-            async () => this.goto('https://www.paypal.com/invoice/create', { waitUntil: 'networkidle2' }),
+        async () => page.focus('input[placeholder="Email address or name"]'),
+        async () => page.keyboard.type(order.order_customer_email),
+        async () => page.keyboard.down('Tab'),
+        async () => page.keyboard.up('Tab'));
+    }
 
-            async () => page = that.currentPage,
-			async () => page.setViewport({
-				width: 1280,
-				height: 1024
-			}),
-            
-            async () => this.fillCreateInvoiceForm(order, page),        
-            async () => page.waitForSelector('#addNewBilling'),
-            async () => page.$eval('#addNewBilling', (el:any) => el.click()),
-            async () => this.fillRecipientInformationForm(order, page),
-            async () => this.fillOrderDetailsForm(order, page),
-            async () => {
-		        if(await page.$('#sendSplitButton')){
-			        await page.evaluate(() => {
-				        var el = document.querySelector('#sendSplitButton')
-				        el.scrollIntoView()
-			        })
-			        await page.$eval("#sendInvoice", (el:any) => el.click())
-		        }
-            },
-			async () => page.waitForNavigation(), // change to waitForNavigation
-        )
-	}
-	/**
-	 * Logs out from PayPal and close browser
-	 */
-	async logout(){
-//		await this.currentPage.close();
-	}
+    async createOrder(order:any) {
+      /* eslint-disable no-param-reassign */
+      order.order_customer_country = lookup.byInternet(order.order_customer_country_code).country;
+
+      const page:Page = await this.goto('https://www.paypal.com/invoice/create', { waitUntil: 'networkidle2' });
+      // ORDER
+
+      PayPalRobot.series(
+        'Creating order',
+        async () => page.setViewport({
+          width: 1280,
+          height: 1024,
+        }),
+
+        async () => this.fillCreateInvoiceForm(order, page),
+        async () => page.waitForSelector('#addNewBilling'),
+        async () => page.$eval('#addNewBilling', (el:any) => el.click()),
+        async () => this.fillRecipientInformationForm(order, page),
+        async () => this.fillOrderDetailsForm(order, page),
+        async () => {
+          if (await page.$('#sendSplitButton')) {
+            await page.evaluate(() => {
+              const el = document.querySelector('#sendSplitButton');
+              el.scrollIntoView();
+            });
+            await page.$eval('#sendInvoice', (el:any) => el.click());
+          }
+        },
+        async () => page.waitForNavigation(), // change to waitForNavigation
+      );
+    }
+
+    /**
+     * Logs out from PayPal and close browser
+     */
+    static async logout() {
+      //        await this.currentPage.close();
+    }
 }
 
-export { PayPalRobot }
+export { PayPalRobot };

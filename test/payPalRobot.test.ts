@@ -44,10 +44,10 @@ describe('PayPalRobot', () => {
 		this.timeout(60000) // for that we should NOT use arrow functions
 		await robot.init()
 		let page:Page;
-		return robot
+		return PayPalRobot
 			.series('loading test page',
 					async () => robot.goto('file://' + process.cwd() + '/test/resources/Login.html'),
-					async (p) => (page = p).setViewport({
+					async (p:any) => (page = p).setViewport({
 						width: 2048,
 						height: 2048,
 						deviceScaleFactor: 0.5
@@ -74,10 +74,10 @@ describe('PayPalRobot', () => {
 			return Promise.resolve(true) // return fake `true`												
 		}
         
-		return robot
+		return PayPalRobot
 			.series('loading Invoice page',
 					async () => robot.goto('file://' + process.cwd() + '/test/resources/Invoice.html'),
-					async (p) => (page = p).setViewport({
+					async (p:any) => (page = p).setViewport({
 						width: 2048,
 						height: 2048,
 						deviceScaleFactor: 0.5
@@ -89,15 +89,15 @@ describe('PayPalRobot', () => {
 											   return false
 										   }),
 					async () => order = require('./resources/order_brad.json'),
-					async (order) => robot.fillCreateInvoiceForm(order, page),
-					async () => robot.series(
+					async (order:any) => robot.fillCreateInvoiceForm(order, page),
+					async () => PayPalRobot.series(
 						'Testing header invoice data',
 						async () => robot.val('#invoiceNumber').should.eventually.equal(order.order_id),
 						async () => robot.val('#issueDate').should.eventually.equal(order.order_date),
 						async () => robot.val('#invoiceTerms').should.eventually.equal('noduedate'),
 						// email
 						async () => robot.val('input[placeholder="Email address or name"]').should.eventually.equal(order.order_customer_email),                        
-						async () => robot.series(
+						async () => PayPalRobot.series(
 							'Testing details invoice data',
 							async () => robot.fillOrderDetailsForm(order, page),
 							async () => robot.val('#itemName_0').should.eventually.equal(`Delivery Service #${order.order_id}`),
@@ -107,14 +107,14 @@ describe('PayPalRobot', () => {
 					))
 	})
 
-	it('should open RecipientInformation_Header test page and fill data, click buttons', async function(){
+	it('should open RecipientInformationHeader test page and fill data, click buttons', async function(){
 		this.timeout(60000) // for that we should NOT use arrow functions
 		await robot.init()
 		let page:Page, order:any;
-		return robot
+		return PayPalRobot
 			.series('loading Invoice_RecipientInformation page',
 					async () => page = await robot.goto('file://' + process.cwd() + '/test/resources/Invoice_RecipientInformation.html'),
-					async (page) => page.setViewport({
+					async (page:any) => page.setViewport({
 						width: 2048,
 						height: 2048,
 						deviceScaleFactor: 0.5
@@ -126,9 +126,9 @@ describe('PayPalRobot', () => {
 											   return false
 										   }),
 					async () => order = require('./resources/order_brad.json'),
-					async (order) => robot.fillRecipientInformationForm_Header(order, page),
+					async (order:any) => robot.fillRecipientInformationFormHeader(order, page),
 					// Testing values
-					async () => robot.series(
+					async () => PayPalRobot.series(
 						'Testing recipient information form',
 						async () => robot.val('#recipientEmail'),
 						async (it:any) => it.should.equal(order.order_customer_email),
@@ -150,19 +150,19 @@ describe('PayPalRobot', () => {
 		   this.timeout(60000) // for that we should NOT use arrow functions
 		   await robot.init()
 		   let page:Page, order:any;
-		   return robot
+		   return PayPalRobot
 			   .series('loading Invoice_RecipientInformation_Billing page',
 					   async () => page = await robot.goto('file://' + process.cwd() + '/test/resources/Invoice_RecipientInformation_Billing.html'),
-					   async (page) => page.setViewport({
+					   async (page:any) => page.setViewport({
 						   width: 2048,
 						   height: 2048,
 						   deviceScaleFactor: 0.5
 					   }),
 					   async () => order = require('./resources/order_brad.json'),
-					   async (order) => robot.fillRecipientInformationForm_Billing(order, page),
+					   async (order:any) => robot.fillRecipientInformationFormBilling(order, page),
 					   // Testing values
 					   
-					   async () => robot.series(
+					   async () => PayPalRobot.series(
 						   'Testing Billing Info page',
 						   async () => robot.val('#billing_country_code'),
 						   async (it:any) => it.should.equal(order.order_customer_country_code),
@@ -183,17 +183,17 @@ describe('PayPalRobot', () => {
 		   this.timeout(60000) // for that we should NOT use arrow functions
 		   await robot.init()
 		   let page:Page, order:any;
-		   return robot
+		   return PayPalRobot
 			   .series('loading Invoice_RecipientInformation_Billing page',
 					   async () => page = await robot.goto('file://' + process.cwd() + '/test/resources/Invoice_RecipientInformation_Shipping.html'),
-					   async (page) => page.setViewport({
+					   async (page:any) => page.setViewport({
 						   width: 2048,
 						   height: 2048,
 						   deviceScaleFactor: 0.5
 					   }),
 					   async () => order = require('./resources/order_brad.json'),
-					   async (order) => robot.fillRecipientInformationForm_Shipping(order, page),
-					   async () => robot.series(
+					   async (order:any) => robot.fillRecipientInformationFormShipping(order, page),
+					   async () => PayPalRobot.series(
 						   'Testing Shipping Info page',
 						   async () => robot.val('#shipping_country_code').should.eventually.equal(order.order_shipping_country_code),
 						   async () => robot.val('#shipping_state').should.eventually.equal(order.order_shipping_state),

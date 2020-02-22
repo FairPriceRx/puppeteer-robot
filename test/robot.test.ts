@@ -29,12 +29,12 @@ describe('Awesome app', () => {
 		it('should open test page and fill data, click buttons', async function(){
 				this.timeout(5000)
 				await robot.init()
-				return robot
+				return PuppeteerRobot
 						.series('loading test page',
 										async () => robot.goto('file://' + process.cwd() + '/test/resources/index.html'),
-										async (page) => robot.val('#tstInput1', '1'),
-										async (page) => robot.type('#tstInput2', '2'),
-										async (page) => robot.click('#tstButton'),
+										async () => robot.val('#tstInput1', '1'),
+										async () => robot.type('#tstInput2', '2'),
+										async () => robot.click('#tstButton'),
 										async () => {
 												const page = robot.currentPage
 												expect(await robot.val('#tstInput1'))

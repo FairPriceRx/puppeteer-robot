@@ -1,7 +1,7 @@
 /*
  * Doer class test file
  */
-import { Doer, AsyncFunction } from '../src/doer';
+import { Doer } from '../src/doer';
 import { expect, should } from 'chai'
 
 describe('Doer class', function(){
@@ -10,7 +10,7 @@ describe('Doer class', function(){
 	it('should create an instance', () => {
 		const value = new Doer();
 		expect(value).instanceOf(Doer);
-        expect(Doer.prototype.series).to.not.be.null;
+      expect(Doer.series).to.not.be.null;
 	});
 
     it('`lastDefined` should return recent item in array', () => {
@@ -26,8 +26,8 @@ describe('Doer class', function(){
         this.timeout(5000)
         
         const doer =  new Doer()
-        const { delay } = doer;
-        doer.series('Test asyncs',
+        const { delay } = Doer;
+        Doer.series('Test asyncs',
                 async () => 1,
                 async (a:number) => delay(1000),                
                 async (a:number) => a + 1,
