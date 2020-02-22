@@ -79,10 +79,10 @@ class PayPalRobot extends PuppeteerRobot {
 		// LOGIN
 		const that = this // common technique used to simplify REPL invocation
 		let page:Page
-		await this.series(
+		return this.series(
             'Login to PayPal',			
-			async () => page = await this.goto('https://www.paypal.com/us/signin'),
-			async () => page.setViewport({
+			async () => this.goto('https://www.paypal.com/us/signin'),
+			async (p) => (page = p).setViewport({
 				width: 1280,
 				height: 1024,
 				deviceScaleFactor: 0.75
@@ -105,44 +105,29 @@ class PayPalRobot extends PuppeteerRobot {
 	}
 
     async fillRecipientInformationForm_Header(order: any, page: Page): Promise<any> {
-		await page.waitForSelector('#recipientEmail')
-		
-		await this.val('#recipientEmail', order.order_customer_email)
-		await this.val('#bill_first_name', order.order_customer_name)
-		await this.val('#bill_last_name', order.order_customer_surname)
-		await page.select("#billing_phone_country", countryTelephoneCode(order.order_customer_country_code)[0] as string)
-		await this.val('#bill_phone', order.order_customer_phone)
-		await page.$eval('#saveToContactBook', (check:any) => check.click())
-        return Promise.resolve(true) // returning fake `true`
+        return this.series('Fill Recipient Information Form Header',
+		            async () => page.waitForSelector('#recipientEmail'),
+		            async () => this.val('#recipientEmail', order.order_customer_email),
+		            async () => this.val('#bill_first_name', order.order_customer_name),
+		            async () => this.val('#bill_last_name', order.order_customer_surname),
+		            async () => page.select("#billing_phone_country", countryTelephoneCode(order.order_customer_country_code)[0] as string),
+		            async () => this.val('#bill_phone', order.order_customer_phone),
+		            async () => page.$eval('#saveToContactBook', (check:any) => check.click()),
+                   )
     }
     
-    async fillRecipientInformationForm_Billing(order:any, page:Page):Promise<any> {
-		await page.waitForSelector('#billing_country_code')
-        
-		// setting Billing Info
-		await page.select('#billing_country_code',
-						  order.order_customer_country_code),
-        
-        await page.waitFor(2000) // let state control change
-
-        if(order.order_customer_country_code === 'US'){
-            // trying to set state for US only
-		    await this.type('#billing_state',
-						    order.order_customer_state)
-        }
-
-		await this.val('#billing_city',
-					   order.order_customer_city)
-		
- 		await this.val('#billing_line1',
-					   order.order_customer_address)
-		
-		await this.val('#billing_line2',
-					   order.order_customer_address2)
-		
-		await this.val('#billing_postal_code',
-					   order.order_customer_zip)
-        return Promise.resolve(true) // returning fake `true`
+    async fillRecipientInformationForm_Billing(order:any, page:Page):Promise<any> {       
+        return this.series('Fill Recipient Information Form Billing',
+		            async () => page.waitForSelector('#billing_country_code'),        
+		            // setting Billing Info
+		            async () => page.select('#billing_country_code', order.order_customer_country_code),  
+                    async () => page.waitFor(2000), // let state control change
+                    async () => order.order_customer_country_code === 'US'?
+                    this.type('#billing_state', order.order_customer_state):Promise.resolve(true),
+		            async () => this.val('#billing_city', order.order_customer_city),		
+ 		            async () => this.val('#billing_line1', order.order_customer_address),
+		            async () => this.val('#billing_line2', order.order_customer_address2),		
+		            async () => this.val('#billing_postal_code', order.order_customer_zip))
     }
 
     async fillRecipientInformationForm_Shipping(order:any, page: Page): Promise<any> {
@@ -166,7 +151,7 @@ class PayPalRobot extends PuppeteerRobot {
 		}				
 
 		await page.select('#bill_language', 'en_US')        
-        return Promise.resolve(true) // returning fake `true`        
+
     }
     
     async fillRecipientInformationForm(order:any, page:Page):Promise<any> {
@@ -215,21 +200,21 @@ class PayPalRobot extends PuppeteerRobot {
     
 	async fillCreateInvoiceForm(order:any, page:Page):Promise<any> {
 		// invoice information
-		await this.val('#invoiceNumber', order.order_id)
+        return this.series('Fill create Invocie Form',
+                    async () => page.waitForSelector('#invoiceNumber'),
+		            async () => this.val('#invoiceNumber', order.order_id),
 
-		await this.val('#issueDate', order.order_date)
-		await page.keyboard.down('Enter');
-		await page.keyboard.up('Enter');
-        await page.select('#invoiceTerms', 'noduedate')
-		
-		await this.type('#reference','')
+		            async () => this.val('#issueDate', order.order_date),
+		            async () => page.keyboard.down('Enter'),
+		            async () => page.keyboard.up('Enter'),
+                    async () => page.select('#invoiceTerms', 'noduedate'),
+		            
+		            async () => this.type('#reference',''),
 
-		await page.focus('input[placeholder="Email address or name"]')
-		await page.keyboard.type(order.order_customer_email)
-		await page.keyboard.down('Tab');
-		await page.keyboard.up('Tab');
-
-        return Promise.resolve(true) // return fake `true`
+		            async () => page.focus('input[placeholder="Email address or name"]'),
+		            async () => page.keyboard.type(order.order_customer_email),
+		            async () => page.keyboard.down('Tab'),
+		            async () => page.keyboard.up('Tab'))
 	}
 
 	async createOrder(order:any){
@@ -241,7 +226,7 @@ class PayPalRobot extends PuppeteerRobot {
 		// ORDER
         this.series(
             'Creating order',
-            async () => await this.goto('https://www.paypal.com/invoice/create', { waitUntil: 'networkidle2' }),
+            async () => this.goto('https://www.paypal.com/invoice/create', { waitUntil: 'networkidle2' }),
 
             async () => page = that.currentPage,
 			async () => page.setViewport({
