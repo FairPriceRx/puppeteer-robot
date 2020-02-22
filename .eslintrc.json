@@ -9,7 +9,13 @@
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly",
-				"document": "readonly"
+				"document": "readonly",
+				"it": "readonly",
+				"describe": "readonly",
+				"before": "readonly",
+				"after": "readonly",
+				"beforeEach": "readonly",
+				"afterEach": "readonly"
     },
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
