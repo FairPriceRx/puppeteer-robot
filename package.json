@@ -43,7 +43,7 @@
   "scripts": {
     "postpublish": "git tag -a v%npm_package_version% -m \"Release v%npm_package_version%\" && git push origin --tags",
     "commit-release": "git commit -a -m \"Release v%npm_package_version%\" && git push && git tag -a v%npm_package_version% -m \"Release v%npm_package_version%\" && git push origin --tags",
-    "build": "tsc",
+    "build": "$(npm bin)/tsc --build tsconfig.json",
 		"lint-src": "$(npm bin)/eslint src/*.ts",
 	  "lint-test": "$(npm bin)/eslint test/*.ts",
     "lint":"npm run lint-src && npm run lint-test",
