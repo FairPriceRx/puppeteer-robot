@@ -15,17 +15,19 @@ describe('PayPalRobot', () => {
 
     robot = new PayPalRobot({
       proxyUrl: process.env.PROXY_CFG,
-      headless: false,
+      headless: true,
       slowMo: 25,
       args: [
         '--force-device-scale-factor=0.5',
         '--display=:1',
       ],
     });
+    return robot.init()
   });
 
-  after('cleanup browser instance', () => {
-    if (robot.browser) robot.browser.close();
+    after('cleanup browser instance', () => {
+        console.log('Clearning browser, exitting puppeteer')
+      return robot.browser.close()
   });
 
   it('should create an instance of Robot', () => {
@@ -35,14 +37,12 @@ describe('PayPalRobot', () => {
 
   it('should launch browser with some args', async function () {
     this.timeout(5000);
-    await robot.init();
     expect(robot).has.property('opts').not.null;
     expect(robot).has.property('browser').not.null;
   });
 
   it('should open Login test page and fill data, click buttons', async function () {
     this.timeout(60000); // for that we should NOT use arrow functions
-    await robot.init();
     let page:Page;
     return PayPalRobot
       .series('loading test page',
@@ -65,7 +65,6 @@ describe('PayPalRobot', () => {
 
   it('should open CreateInvoice test page and fill data, click buttons', async function () {
     this.timeout(60000); // for that we should NOT use arrow functions
-    await robot.init();
     let page:Page; let
       order:any;
     robot.fillRecipientInformationForm = (order:any, page:Page):Promise<any> =>
@@ -107,7 +106,6 @@ describe('PayPalRobot', () => {
 
   it('should open RecipientInformationHeader test page and fill data, click buttons', async function () {
     this.timeout(60000); // for that we should NOT use arrow functions
-    await robot.init();
     let page:Page; let
       order:any;
     return PayPalRobot
@@ -145,7 +143,6 @@ describe('PayPalRobot', () => {
   it('should open RecipientInformation_Billing, fill data, click buttons',
     async function () {
       this.timeout(60000); // for that we should NOT use arrow functions
-      await robot.init();
       let page:Page; let
         order:any;
       return PayPalRobot
@@ -179,7 +176,6 @@ describe('PayPalRobot', () => {
   it('should open RecipientInformation_Shipping, fill data, click buttons',
     async function () {
       this.timeout(60000); // for that we should NOT use arrow functions
-      await robot.init();
       let page:Page; let
         order:any;
       return PayPalRobot

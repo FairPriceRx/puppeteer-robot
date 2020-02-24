@@ -252,8 +252,8 @@ class PayPalRobot extends PuppeteerRobot {
     /**
      * Logs out from PayPal and close browser
      */
-    static async logout() {
-      //        await this.currentPage.close();
+    async logout() {
+        return this.currentPage.close();
     }
 }
 

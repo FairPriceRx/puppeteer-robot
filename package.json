@@ -47,7 +47,7 @@
 		"lint-src": "$(npm bin)/eslint src/*.ts",
 	  "lint-test": "$(npm bin)/eslint test/*.ts",
     "lint":"npm run lint-src && npm run lint-test",
-    "test": "node node_modules/mocha/bin/mocha --require ts-node/register test/*.test.ts --reporter spec",
+    "test": "$(npm bin)/_mocha --require ts-node/register test/*.test.ts --reporter spec --exit",
     "start": "$(npm bin)/ts-node src/index.ts",
     "docs": "typedoc --mode file --out docs src --exclude \"**/*+(index|.spec|.test|.e2e).ts\"",
     "gh-pages": "rimraf docs && npm run docs && gh-pages -d docs",
@@ -56,7 +56,7 @@
   "version": "0.0.0",
   "name": "puppeteer-robot",
   "author": {
-    "name": "y",
+    "name": "Arsen A. Gutsal",
     "email": "gutsal.arsen@gmail.com"
   },
   "dependencies": {
