@@ -5,19 +5,30 @@ import { Doer } from './doer';
 
 const ProxyChain:any = require('proxy-chain');
 
-class PuppeteerRobot extends Doer {
+/**
+ * Abstract class extends Doer, implements @google puppeteer based Robot
+*/
+abstract class PuppeteerRobot extends Doer {
   public opts:any
 
   public browser: Browser
 
     public currentPage: any
 
+    /**
+     * Constructs object using {opts}
+     * @param {any} opts - options object to be used upon construction
+     */
     constructor(opts:any) {
       super();
       this.opts = opts || [];
     }
 
-    async init() {
+    /**
+     * Initialize instances by launching browser
+     * @returns {Promise<any>} Promise object to wait for
+     */
+    async init():Promise<any> {
       this.opts.args = this.opts.args || [];
       const { args } = this.opts;
       if (this.opts.proxyUrl) {
@@ -40,6 +51,12 @@ class PuppeteerRobot extends Doer {
       this.browser = await puppeteer.launch(launchOpts);
     }
 
+    /**
+     * Redirects 0-th page to url provided
+     * @param {string} url to redirect to
+     * @param {any} opts - optional options object to be used with Browser::goto
+     * @returns {Promise<Page>} Promise to wait for
+     */
     async goto(url:string, opts?:any):Promise<Page> {
       [this.currentPage] = (await this.browser.pages());
       await this.currentPage.goto(url, opts || { waitUntil: 'networkidle2' });
@@ -49,17 +66,20 @@ class PuppeteerRobot extends Doer {
     /**
    * Helper method that correctly sets value
    * on INPUT element
+   * @param {string} id of element to lookup
+   * @param {strirg} value to be set
+   * @returns {Promise<any>} Promise to wait for
    */
-    async val(id:string, val?:string) {
+    async val(id:string, value?:string):Promise<any> {
       const el = await this.currentPage.$(id);
       if ((el != null)
-       && (val != null)) {
+       && (value != null)) {
         return this.currentPage
           .evaluate((_id:string, _val:string) => {
             (document.querySelector(_id) as HTMLInputElement)
               .value = _val;
             return _val;
-          }, id, val);
+          }, id, value);
       }
       return this.currentPage.$eval(id, (_el:HTMLInputElement) => _el.value);
     }
@@ -68,13 +88,16 @@ class PuppeteerRobot extends Doer {
    * Helper method that correctly sets value via typing
    * on INPUT/SELECT elements. If element is not found
    * no problem is thrown
+   * @param {string} id of element to lookup
+   * @param {strirg} value to be set
+   * @returns {Promise<any>} Promise to wait for
    */
-    async type(id:string, val:string) {
-      if ((val !== null) && (val !== undefined) && (val !== '')
+    async type(id:string, value:string):Promise<any> {
+      if ((value !== null) && (value !== undefined) && (value !== '')
            // setting value only if different from existing one
-           && (val !== await this.val(id))) {
+           && (value !== await this.val(id))) {
         return Doer.series(
-          `Cleanup input control and setting ${val} value`,
+          `Cleanup input control and setting ${value} value`,
           // async () => this.currentPage.evaluate((id:any) => {
           //    let el = document.querySelector(id);
           //    if(el)
@@ -82,7 +105,7 @@ class PuppeteerRobot extends Doer {
           // }, id),
           // async () => this.currentPage.waitFor(1000),
           async () => this.currentPage.focus(id),
-          async () => this.currentPage.type(id, val, { delay: 25 }),
+          async () => this.currentPage.type(id, value, { delay: 25 }),
         );
       } return Promise.resolve(true);
     }
@@ -91,8 +114,10 @@ class PuppeteerRobot extends Doer {
    * Helper method that correctly sets value via typing
    * on INPUT/SELECT elements. If element is not found
    * no problem is thrown
+   * @param {string} id of element to lookup
+   * @returns {Promise<any>} Promise to wait for
    */
-    async click(id:string) {
+    async click(id:string):Promise<any> {
       if (this.currentPage.$(id) != null) {
         const el:any = await this.currentPage.$(id);
         const elPos = await this.currentPage.evaluate((_el:any) => {

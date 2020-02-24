@@ -217,7 +217,13 @@ class PayPalRobot extends PuppeteerRobot {
         async () => page.keyboard.up('Tab'));
     }
 
-    async createOrder(order:any) {
+
+    /**
+     * Create PayPal order with Robot
+     * @param {any} order JSON object order to be created with PayPal
+     * @returns {Promise<any>} Promise object to wait for
+     */
+    async createOrder(order:any):Promise<any> {
       /* eslint-disable no-param-reassign */
       order.order_customer_country = lookup.byInternet(order.order_customer_country_code).country;
 
@@ -251,6 +257,7 @@ class PayPalRobot extends PuppeteerRobot {
 
     /**
      * Logs out from PayPal and close browser
+     * @returns {Promise<any>} Promise object to wait for
      */
     async logout() {
       //        return this.currentPage.close();
