@@ -5,6 +5,7 @@ import { createTerminus } from '@godaddy/terminus';
 
 import * as dotenv from 'dotenv-flow';
 
+import { Doer } from './doer';
 import { PayPalRobot } from './payPalRobot';
 
 dotenv.config();
@@ -14,7 +15,7 @@ class App {
 
   public serverPort:number;
 
-  public botPP:any;
+  public botPP:PayPalRobot;
 
   constructor() {
     console.log('Robot App is running!');
@@ -43,7 +44,7 @@ class App {
         }
         console.log(`Sending order to server: ${order}`);
         // logging in
-        await this.botPP.series(
+        await Doer.series(
           'Processing order',
           async () => this.botPP.login(process.env.PP_LOGIN, process.env.PP_PASSWD),
           async () => this.botPP.createOrder(jsonOrder),

@@ -49,7 +49,7 @@ ORDER SAMPLE:
 */
 
 /*  eslint-disable no-unused-vars */
-import { Page } from 'puppeteer';
+import { Browser, Page } from 'puppeteer';
 import { PuppeteerRobot } from './robot';
 import { Doer } from './doer';
 
@@ -57,7 +57,7 @@ const countryTelephoneCode = require('country-telephone-code');
 const lookup = require('country-code-lookup');
 
 class PayPalRobot extends PuppeteerRobot {
-    public browser: any
+    public browser: Browser
 
     async fillLoginForm(login:string, pwd:string, page:Page) {
       return Doer.series(
@@ -253,7 +253,8 @@ class PayPalRobot extends PuppeteerRobot {
      * Logs out from PayPal and close browser
      */
     async logout() {
-        return this.currentPage.close();
+      //        return this.currentPage.close();
+      return Promise.resolve(this); // faking, does nothing
     }
 }
 

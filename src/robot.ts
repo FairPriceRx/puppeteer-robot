@@ -8,7 +8,7 @@ const ProxyChain:any = require('proxy-chain');
 class PuppeteerRobot extends Doer {
   public opts:any
 
-  public browser:Browser
+  public browser: Browser
 
     public currentPage: any
 
