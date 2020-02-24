@@ -100,7 +100,7 @@ describe('PayPalRobot', () => {
             async () => robot.fillOrderDetailsForm(order, page),
             async () => robot.val('#itemName_0').should.eventually.equal(`Delivery Service #${order.order_id}`),
             async () => robot.val('#itemQty_0').should.eventually.equal('1'),
-            async () => robot.val('#itemPrice_0').should.eventually.equal(order.order_total),
+            async () => robot.val('#itemPrice_0').should.eventually.equal(order.order_subtotal),
           ),
         ));
   });
