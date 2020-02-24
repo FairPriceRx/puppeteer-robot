@@ -48,9 +48,10 @@ ORDER SAMPLE:
 
 */
 
-
+/*  eslint-disable no-unused-vars */
 import { Page } from 'puppeteer';
 import { PuppeteerRobot } from './robot';
+import { Doer } from './doer';
 
 const countryTelephoneCode = require('country-telephone-code');
 const lookup = require('country-code-lookup');
@@ -59,7 +60,7 @@ class PayPalRobot extends PuppeteerRobot {
     public browser: any
 
     async fillLoginForm(login:string, pwd:string, page:Page) {
-      return PayPalRobot.series(
+      return Doer.series(
         'Filling login form with login and password',
         async () => page.evaluate(() => {
           (document.querySelector('#email') as HTMLInputElement).value = '';
@@ -82,7 +83,7 @@ class PayPalRobot extends PuppeteerRobot {
       // LOGIN
       const page:Page = await this.goto('https://www.paypal.com/us/signin');
 
-      return PayPalRobot.series(
+      return Doer.series(
         'Login to PayPal',
         async () => page.setViewport({
           width: 1280,
@@ -94,7 +95,7 @@ class PayPalRobot extends PuppeteerRobot {
         async () => {
           console.log(page.url());
           if (page.url() === 'https://www.paypal.com/us/signin') {
-            return PayPalRobot.series(
+            return Doer.series(
               'Filling login form',
               async () => this.fillLoginForm(login, password, page),
               // hitting login button
@@ -107,7 +108,7 @@ class PayPalRobot extends PuppeteerRobot {
     }
 
     async fillRecipientInformationFormHeader(order: any, page: Page): Promise<any> {
-      return PayPalRobot.series('Fill Recipient Information Form Header',
+      return Doer.series('Fill Recipient Information Form Header',
         async () => page.waitForSelector('#recipientEmail'),
         async () => this.val('#recipientEmail', order.order_customer_email),
         async () => this.val('#bill_first_name', order.order_customer_name),
@@ -118,7 +119,7 @@ class PayPalRobot extends PuppeteerRobot {
     }
 
     async fillRecipientInformationFormBilling(order: any, page:Page):Promise<any> {
-      return PayPalRobot.series('Fill Recipient Information Form Billing',
+      return Doer.series('Fill Recipient Information Form Billing',
         async () => page.waitForSelector('#billing_country_code'),
         // setting Billing Info
         async () => page.select('#billing_country_code', order.order_customer_country_code),
@@ -132,7 +133,7 @@ class PayPalRobot extends PuppeteerRobot {
     }
 
     async fillRecipientInformationFormShipping(order:any, page: Page): Promise<any> {
-      return PayPalRobot.series('Filling Shipping part of the form',
+      return Doer.series('Filling Shipping part of the form',
         async () => this.val('#shipping_first_name', order.order_shipping_first_name),
         async () => this.val('#shipping_last_name', order.order_shipping_last_name),
         async () => this.val('#shipping_country_code', order.order_shipping_country_code),
@@ -199,7 +200,7 @@ class PayPalRobot extends PuppeteerRobot {
 
     async fillCreateInvoiceForm(order:any, page:Page):Promise<any> {
       // invoice information
-      return PayPalRobot.series('Fill create Invocie Form',
+      return Doer.series('Fill create Invocie Form',
         async () => page.waitForSelector('#invoiceNumber'),
         async () => this.val('#invoiceNumber', order.order_id),
 
@@ -223,7 +224,7 @@ class PayPalRobot extends PuppeteerRobot {
       const page:Page = await this.goto('https://www.paypal.com/invoice/create', { waitUntil: 'networkidle2' });
       // ORDER
 
-      PayPalRobot.series(
+      Doer.series(
         'Creating order',
         async () => page.setViewport({
           width: 1280,

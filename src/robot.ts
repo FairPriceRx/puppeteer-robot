@@ -1,4 +1,5 @@
 import * as puppeteer from 'puppeteer';
+/*  eslint-disable no-unused-vars */
 import { Browser, Page } from 'puppeteer';
 import { Doer } from './doer';
 
@@ -72,7 +73,7 @@ class PuppeteerRobot extends Doer {
       if ((val !== null) && (val !== undefined) && (val !== '')
            // setting value only if different from existing one
            && (val !== await this.val(id))) {
-        return PuppeteerRobot.series(
+        return Doer.series(
           `Cleanup input control and setting ${val} value`,
           // async () => this.currentPage.evaluate((id:any) => {
           //    let el = document.querySelector(id);

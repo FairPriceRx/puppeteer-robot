@@ -22,11 +22,19 @@
         "ecmaVersion": 2018,
         "sourceType": "module"
     },
+		"settings":{
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    }
+		},
     "plugins": [
         "@typescript-eslint"
     ],
     "rules": {
 				"no-console": 0,
-				"import/prefer-default-export": 0
+				"import/prefer-default-export": 0,
+				"import/extensions": 0
     }
 }
