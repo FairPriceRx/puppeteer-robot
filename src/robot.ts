@@ -13,7 +13,7 @@ abstract class PuppeteerRobot extends Doer {
 
   public browser: Browser
 
-    public currentPage: any
+    public currentPage: Page
 
     /**
      * Constructs object using {opts}
@@ -126,7 +126,7 @@ abstract class PuppeteerRobot extends Doer {
         }, el);
 
         await this.currentPage.mouse.move(elPos.left + 2, elPos.top + 2);
-        await this.currentPage.mouse.down(elPos.left + 2, elPos.top + 2);
+        await this.currentPage.mouse.down();
         await this.currentPage.mouse.up();
       }
     }
