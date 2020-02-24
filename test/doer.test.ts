@@ -21,12 +21,12 @@ describe('Doer class', function () {
     expect(Doer.lastDefined([])).to.equal(undefined);
   });
 
-  it('`do` should invoke asyncs one by one', function (done) {
-    this.timeout(5000);
+  it('`do` should invoke asyncs one by one', async function () {
+    this.timeout(10000);
 
     const doer = new Doer();
     const { delay } = Doer;
-    Doer.series('Test asyncs',
+    return Doer.series('Test asyncs',
       async () => 1,
       async (a:number) => delay(1000),
       async (a:number) => a + 1,
@@ -47,8 +47,7 @@ describe('Doer class', function () {
           undefined,
           4,
           undefined,
-          5]);
-      done();
+					5]);
     });
   });
 });

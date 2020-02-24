@@ -134,15 +134,15 @@ class PayPalRobot extends PuppeteerRobot {
 
     async fillRecipientInformationFormShipping(order:any, page: Page): Promise<any> {
       return Doer.series('Filling Shipping part of the form',
+        async () => this.val('#shipping_country_code', order.order_shipping_country_code),
         async () => this.val('#shipping_first_name', order.order_shipping_first_name),
         async () => this.val('#shipping_last_name', order.order_shipping_last_name),
-        async () => this.val('#shipping_country_code', order.order_shipping_country_code),
         async () => this.val('#shipping_line1', order.order_shipping_address_one),
         async () => this.val('#shipping_line2', order.order_shipping_address_two),
         async () => this.val('#shipping_city', order.order_shipping_city),
-        async () => this.val('#shipping_state', order.order_shipping_state),
+        async () => this.type('#shipping_state', order.order_shipping_state),
         async () => this.val('#shipping_postal_code', order.order_shipping_zip),
-        async () => page.waitFor(200),
+        async () => page.waitFor(500),
         async () => page.$eval('#saveShippingToContact', (check:any) => check.click()));
     }
 

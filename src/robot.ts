@@ -8,7 +8,7 @@ const ProxyChain:any = require('proxy-chain');
 /**
  * Abstract class extends Doer, implements @google puppeteer based Robot
 */
-abstract class PuppeteerRobot extends Doer {
+class PuppeteerRobot extends Doer {
   public opts:any
 
   public browser: Browser
@@ -47,7 +47,7 @@ abstract class PuppeteerRobot extends Doer {
         args,
       };
 
-      // console.log('Launching Puppeteer with options', launchOpts)
+      console.log('Launching Puppeteer with options', launchOpts);
       this.browser = await puppeteer.launch(launchOpts);
     }
 
