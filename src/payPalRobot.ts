@@ -215,6 +215,7 @@ class PayPalRobot extends PuppeteerRobot {
     
 	async fillCreateInvoiceForm(order:any, page:Page):Promise<any> {
 		// invoice information
+    await page.waitForSelector('#invoiceNumber')
 		await this.val('#invoiceNumber', order.order_id)
 
 		await this.val('#issueDate', order.order_date)
