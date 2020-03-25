@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { Doer } from '../src/doer';
 import { PuppeteerRobot } from '../src/robot';
 
 describe('PuppeteerRobot', () => {
@@ -31,7 +32,7 @@ describe('PuppeteerRobot', () => {
 
   it('should open test page and fill data, click buttons', async function () {
     this.timeout(5000);
-    return PuppeteerRobot
+    return Doer
 		  .series('loading test page',
                   async () => robot.goto(`file://${process.cwd()}/test/resources/index.html`),
         async () => robot.val('#tstInput1', '1'),
