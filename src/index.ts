@@ -1,3 +1,3 @@
-import { App } from './app'
+import { App } from './app';
 
-new App().init() // construct and start App
+new App().init(); // construct and start App
