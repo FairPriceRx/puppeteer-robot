@@ -37,9 +37,13 @@ describe('PayPalRobot', () => {
     });
 
     it('should launch browser with some args', async function () {
-        this.timeout(5000);
         expect(robot).has.property('opts').not.null;
         expect(robot).has.property('browser').not.null;
+    });
+
+    it('should create order for non-ISO country GB', async function () {
+        this.timeout(5000);
+        expect(robot.createOrder(require('./resources/order_1832.json'))).should.be.rejected;
     });
 
     it('should open Login test page and fill data, click buttons', async function () {
@@ -191,12 +195,18 @@ describe('PayPalRobot', () => {
                        async (order:any) => robot.fillRecipientInformationFormShipping(order, page),
                        async () => Doer.series(
                            'Testing Shipping Info page',
-                           async () => robot.val('#shipping_country_code').should.eventually.equal(order.order_shipping_country_code),
-                           async () => robot.val('#shipping_state').should.eventually.equal(order.order_shipping_state),
-                           async () => robot.val('#shipping_city').should.eventually.equal(order.order_shipping_city),
-                           async () => robot.val('#shipping_line1').should.eventually.equal(order.order_shipping_address_one),
-                           async () => robot.val('#shipping_line2').should.eventually.equal(order.order_shipping_address_two),
-                           async () => robot.val('#shipping_postal_code').should.eventually.equal(order.order_shipping_zip),
+                           async () => robot.val('#shipping_country_code')
+                               .should.eventually.equal(order.order_shipping_country_code),
+                           async () => robot.val('#shipping_state')
+                               .should.eventually.equal(order.order_shipping_state),
+                           async () => robot.val('#shipping_city')
+                               .should.eventually.equal(order.order_shipping_city),
+                           async () => robot.val('#shipping_line1')
+                               .should.eventually.equal(order.order_shipping_address_one),
+                           async () => robot.val('#shipping_line2')
+                               .should.eventually.equal(order.order_shipping_address_two),
+                           async () => robot.val('#shipping_postal_code')
+                               .should.eventually.equal(order.order_shipping_zip),
                        ));
        });
 

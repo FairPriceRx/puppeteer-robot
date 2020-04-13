@@ -53,6 +53,8 @@ import { Browser, Page } from 'puppeteer';
 import { PuppeteerRobot } from './robot';
 import { Doer } from './doer';
 
+import { wooCommerceAllowedCountries } from './wooCommerceAllowedCountries';
+
 const countryTelephoneCode = require('country-telephone-code');
 const lookup = require('country-code-lookup');
 
@@ -224,13 +226,23 @@ class PayPalRobot extends PuppeteerRobot {
      * @returns {Promise<any>} Promise object to wait for
      */
     async createOrder(order:any):Promise<any> {
-      /* eslint-disable no-param-reassign */
-      order.order_customer_country = lookup.byInternet(order.order_customer_country_code).country;
+        /* eslint-disable no-param-reassign */
+        const byInternet = lookup.byInternet(order.order_customer_country_code);
+          order.order_customer_country =
+              byInternet?
+              byInternet.country:
+              wooCommerceAllowedCountries[order.order_customer_country_code.toUpperCase()];
 
-      const page:Page = await this.goto('https://www.paypal.com/invoice/create', { waitUntil: 'networkidle2' });
+        //const byInternet = lookup.byInternet(order.order_customer_country_code);
+        //order.order_customer_country = byInternet.country;
+
+        const page:Page = await this.goto('https://www.paypal.com/invoice/create', {
+            waitUntil: 'networkidle2'
+        });
+        
       // ORDER
 
-      Doer.series(
+      return Doer.series(
         'Creating order',
         async () => page.setViewport({
           width: 1280,
@@ -263,66 +275,6 @@ class PayPalRobot extends PuppeteerRobot {
       //        return this.currentPage.close();
       return Promise.resolve(this); // faking, does nothing
     }
-	async fillCreateInvoiceForm(order:any, page:Page):Promise<any> {
-		// invoice information
-    await page.waitForSelector('#invoiceNumber')
-		await this.val('#invoiceNumber', order.order_id)
-
-		await this.val('#issueDate', order.order_date)
-		await page.keyboard.down('Enter');
-		await page.keyboard.up('Enter');
-        await page.select('#invoiceTerms', 'noduedate')
-		
-		await this.type('#reference','')
-
-		await page.focus('input[placeholder="Email address or name"]')
-		await page.keyboard.type(order.order_customer_email)
-		await page.keyboard.down('Tab');
-		await page.keyboard.up('Tab');
-
-        return Promise.resolve(true) // return fake `true`
-	}
-
-	async createOrder(order:any){
-		const that = this // common technique used to simplify REPL invocation
-		order.order_customer_country
-			= lookup.byInternet(order.order_customer_country_code).country
-
-		let page:Page
-		// ORDER
-        this.series(
-            'Creating order',
-            async () => await this.goto('https://www.paypal.com/invoice/create', { waitUntil: 'networkidle2' }),
-
-            async () => page = that.currentPage,
-			async () => page.setViewport({
-				width: 1280,
-				height: 1024
-			}),
-            
-            async () => this.fillCreateInvoiceForm(order, page),        
-            async () => page.waitForSelector('#addNewBilling'),
-            async () => page.$eval('#addNewBilling', (el:any) => el.click()),
-            async () => this.fillRecipientInformationForm(order, page),
-            async () => this.fillOrderDetailsForm(order, page),
-            async () => {
-		        if(await page.$('#sendSplitButton')){
-			        await page.evaluate(() => {
-				        var el = document.querySelector('#sendSplitButton')
-				        el.scrollIntoView()
-			        })
-			        await page.$eval("#sendInvoice", (el:any) => el.click())
-		        }
-            },
-			async () => page.waitForNavigation(), // change to waitForNavigation
-        )
-	}
-	/**
-	 * Logs out from PayPal and close browser
-	 */
-	async logout(){
-//		await this.currentPage.close();
-	}
 }
 
 export { PayPalRobot };
