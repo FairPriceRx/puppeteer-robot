@@ -189,9 +189,10 @@ class PayPalRobot extends PuppeteerRobot {
       await this.val('#itemQty_0', '1');
       await this.val('#itemPrice_0', order.order_subtotal);
 
-      if (parseInt(order.order_subtotal, 10) > parseInt(process.env.MIN_DISCOUNT_AMOUNT, 10)) {
-        await this.val('#invDiscount', process.env.DISCOUNT);
-      }
+			// FIXME: temporarily ignoring invoice
+      // if (parseInt(order.order_subtotal, 10) > parseInt(process.env.MIN_DISCOUNT_AMOUNT, 10)) {
+      //   await this.val('#invDiscount', process.env.DISCOUNT);
+      // }
 
       if (order.order_shipping_cost) {
         await this.val('#shippingAmount',
