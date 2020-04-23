@@ -26,7 +26,7 @@ class App {
     this.botPP = new PayPalRobot({
       proxyUrl: process.env.PROXY_CFG,
       headless: false,
-      slowMo: 25,
+      slowMo: 5,
       args: [
         '--force-device-scale-factor=0.5',
         '--display=:1',
