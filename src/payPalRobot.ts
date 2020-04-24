@@ -87,12 +87,6 @@ class PayPalRobot extends PuppeteerRobot {
 
       return Doer.series(
         'Login to PayPal',
-        async () => page.setViewport({
-          width: 1280,
-          height: 1024,
-          deviceScaleFactor: 0.75,
-        }),
-
         async () => page.waitFor(700),
         async () => {
           console.log(page.url());
@@ -245,11 +239,6 @@ class PayPalRobot extends PuppeteerRobot {
 
       return Doer.series(
         'Creating order',
-        async () => page.setViewport({
-          width: 1280,
-          height: 1024,
-        }),
-
         async () => this.fillCreateInvoiceForm(order, page),
         async () => page.waitForSelector('#addNewBilling'),
         async () => page.$eval('#addNewBilling', (el:any) => el.click()),

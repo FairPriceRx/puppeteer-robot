@@ -43,7 +43,8 @@ class PuppeteerRobot extends Doer {
 
       const launchOpts = {
         headless: this.opts.headless,
-        slowMo: this.opts.slowMo,
+				slowMo: this.opts.slowMo,
+				defaultViewport:this.opts.defaultViewport,
         args,
       };
 
