@@ -28,7 +28,7 @@ class App {
       headless: false,
       slowMo: 5,
       args: [
-        '--force-device-scale-factor=0.5',
+        '--force-device-scale-factor=1.0',
         '--display=:1',
       ],
     });
