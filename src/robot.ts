@@ -73,10 +73,10 @@ class PuppeteerRobot extends Doer {
      */
     async val(id:string, value?:string):Promise<any> {
         const el = await this.currentPage.$(id);
-        if (el === null){
+        if (el == null){
             return null
-        }        
-        if(value !== null) {
+        }
+        if(value != null) {
             return this.currentPage
                 .evaluate((_id:string, _val:string) => {
                     (document.querySelector(_id) as HTMLInputElement).value = _val;
