@@ -99,17 +99,18 @@ class PuppeteerRobot extends Doer {
         if ((value !== null) && (value !== undefined) && (value !== '')
             // setting value only if different from existing one
             && (value !== await this.val(id))) {
-            return Doer.series(
-                `Cleanup input control and setting ${value} value`,
-                // async () => this.currentPage.evaluate((id:any) => {
-                //    let el = document.querySelector(id);
-                //    if(el)
-                //        el.value = ''
-                // }, id),
-                // async () => this.currentPage.waitFor(1000),
-                async () => this.currentPage.focus(id),
-                async () => this.currentPage.type(id, value, { delay: 25 }),
-            );
+						if(await this.currentPage.$(id) != null)
+								return Doer.series(
+										`Cleanup input control and setting ${value} value`,
+										// async () => this.currentPage.evaluate((id:any) => {
+										//    let el = document.querySelector(id);
+										//    if(el)
+										//        el.value = ''
+										// }, id),
+										// async () => this.currentPage.waitFor(1000),
+										async () => this.currentPage.focus(id),
+										async () => this.currentPage.type(id, value, { delay: 25 }),
+								);
         } return Promise.resolve(true);
     }
 
