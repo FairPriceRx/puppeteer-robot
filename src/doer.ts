@@ -21,7 +21,8 @@ class Doer {
             .join('_')}`;
         console.log(`Finished ${screenshotFileName}`);
         return results;
-      });
+      })
+      .catch(console.error);
   }
 
   static lastDefined(arr:any[]):any {
