@@ -39,8 +39,8 @@ class App {
         const jsonOrder:any = JSON.parse(order);
         if (req.header('Random-id')) {
           // random Integer in [2000:9999] range
-					jsonOrder.order_id = Math.round(Math.random() * (9999 - 2000) + 2000);
-					jsonOrder.order_customer_email=process.env.SUPPORT_EMAIL;
+          jsonOrder.order_id = Math.round(Math.random() * (9999 - 2000) + 2000);
+          jsonOrder.order_customer_email=process.env.SUPPORT_EMAIL;
           console.log(`New order_id created: ${jsonOrder.order_id}`);
         }
         console.log(`Sending order to server: ${order}`);
@@ -52,7 +52,14 @@ class App {
           async () => this.botPP.currentPage.waitFor(5000), // waiting for order to be actually send
           async () => this.botPP.logout(), // logs out and close browser
           async () => res.send('OK'),
-        );
+        ).catch(async (error: any) => {
+          const now:number = Date.now();
+          const screenshotFileName =
+            `${now}-${whatToDo.toLowerCase().split(/\s/).join('_')}.png`;
+          this.botPP.currentPage.screenshot(screenshotFileName);
+          console.log(`Failed with screenshot:${screenshotFileName}`);
+          return results;
+        });
       });
     });
   }
@@ -106,7 +113,7 @@ class App {
     });
 
     this.server.listen(this.serverPort,
-      () => console.log(`Example app listening on port ${this.serverPort}!`));
+                       () => console.log(`Example app listening on port ${this.serverPort}!`));
   }
 }
 

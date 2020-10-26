@@ -3,26 +3,22 @@ class Doer {
     if (args.length === 0) throw new Error('Doer.series should be called with multiple arguments');
     const reduceFunc = (promiseChain:Promise<any>, currentTask:any) => promiseChain
       .then(async (chainResults:any[]) => currentTask(Doer.lastDefined(chainResults))
-        .then(async (result:any) => {
-          // should call await here
-          await Doer.delay(500);
-          return result;
-        })
-      // passing recent argument to next call
-        .then((currentResult:any) => [...chainResults, currentResult]));
+      .then(async (result:any) => {
+        // should call await here
+        await Doer.delay(500);
+        return result;
+      })
+            // passing recent argument to next call
+      .then((currentResult:any) => [...chainResults, currentResult]));
     return args
       .reduce(reduceFunc, Promise.resolve([]))
       .then(async (results: any) => {
         const now:number = Date.now();
-        const screenshotFileName = `${now}-${
-          whatToDo
-            .toLowerCase()
-            .split(/\s/)
-            .join('_')}`;
+        const screenshotFileName = `${now}-${whatToDo.toLowerCase().split(/\s/).join('_')}.png`;
+
         console.log(`Finished ${screenshotFileName}`);
         return results;
       })
-      .catch(console.error);
   }
 
   static lastDefined(arr:any[]):any {
