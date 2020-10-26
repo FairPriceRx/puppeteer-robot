@@ -1,6 +1,7 @@
 /node_modules/
 /out/
 /.env.local
+/.env.test.local
 /src/*.png
 /yarn.lock
 /package-lock.json
@@ -11,3 +12,4 @@
 /docs/
 /3.0.0
 /build/
+
