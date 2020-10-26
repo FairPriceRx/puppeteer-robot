@@ -212,8 +212,7 @@ class PayPalRobot extends PuppeteerRobot {
 
         async () => this.type('#reference', ''),
 
-        async () => page.focus('input[placeholder="Email address or name"]'),
-        async () => page.keyboard.type(order.order_customer_email),
+        async () => this.type('input[placeholder="Email address or name"]', order.order_customer_email),
         async () => page.keyboard.down('Tab'),
         async () => page.keyboard.up('Tab'));
     }
