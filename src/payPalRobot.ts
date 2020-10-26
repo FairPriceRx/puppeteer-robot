@@ -238,10 +238,8 @@ class PayPalRobot extends PuppeteerRobot {
         const page:Page = await this.goto('https://www.paypal.com/invoice/create', {
             waitUntil: 'networkidle2'
         });
-        
-      // ORDER
-
-        return Doer.series(
+     // ORDER
+         return Doer.series(
             'Creating order',
 			async () => page.setViewport({
 				width: 1920,

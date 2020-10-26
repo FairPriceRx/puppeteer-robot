@@ -54,11 +54,11 @@ class App {
           async () => res.send('OK'),
         ).catch(async (error: any) => {
           const now:number = Date.now();
-          const screenshotFileName =
-            `${now}-${whatToDo.toLowerCase().split(/\s/).join('_')}.png`;
-          this.botPP.currentPage.screenshot(screenshotFileName);
+          const screenshotFileName:string =
+            `${now}-processing_order.png`;
+            this.botPP.currentPage.screenshot({path: screenshotFileName});
           console.log(`Failed with screenshot:${screenshotFileName}`);
-          return results;
+          throw error;
         });
       });
     });
