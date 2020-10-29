@@ -55,7 +55,7 @@ class App {
           async () => res.send('OK'),
         ).catch(async (error: any) => {
           const now:number = Date.now();
-          const screenshotFileName:string =
+          let screenshotFileName:string =
             `${now}-processing_order.png`;
             await this.botPP.currentPage.screenshot({path: screenshotFileName})
 
