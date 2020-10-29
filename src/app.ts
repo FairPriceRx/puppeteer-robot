@@ -61,9 +61,10 @@ class App {
 
             screenshotFileName = [process.env.SCREENSHOT_DIR, '/', screenshotFileName].join('/');
             sendmail({
-                    from:process.env.SENDMAIL_FROM,
-                    to: process.env.SENDMAIL_TO,
-                    subject: 'failed order',
+                silent: false,
+                from:process.env.SENDMAIL_FROM,
+                to: process.env.SENDMAIL_TO,
+                subject: 'failed order',
                 html: `Order ${jsonOrder.order_id} has been failed`,
                 attachments: [
                     { // utf-8 string as an attachment
