@@ -44,9 +44,9 @@
     "postpublish": "git tag -a v%npm_package_version% -m \"Release v%npm_package_version%\" && git push origin --tags",
     "commit-release": "git commit -a -m \"Release v%npm_package_version%\" && git push && git tag -a v%npm_package_version% -m \"Release v%npm_package_version%\" && git push origin --tags",
     "build": "$(npm bin)/tsc --build tsconfig.json",
-		"lint-src": "$(npm bin)/eslint src/*.ts",
-	  "lint-test": "$(npm bin)/eslint test/*.ts",
-    "lint":"npm run lint-src && npm run lint-test",
+    "lint-src": "$(npm bin)/eslint src/*.ts",
+    "lint-test": "$(npm bin)/eslint test/*.ts",
+    "lint": "npm run lint-src && npm run lint-test",
     "test": "$(npm bin)/_mocha --require ts-node/register test/*.test.ts --reporter spec --exit",
     "start": "$(npm bin)/ts-node src/index.ts",
     "docs": "typedoc --mode file --out docs src --exclude \"**/*+(index|.spec|.test|.e2e).ts\"",
@@ -69,6 +69,7 @@
     "dotenv-flow": "^3.1.0",
     "express": "^4.17.1",
     "proxy-chain": "^0.3.3",
-    "puppeteer": "^2.0.0"
+    "puppeteer": "^2.0.0",
+    "sendmail": "^1.6.1"
   }
 }
