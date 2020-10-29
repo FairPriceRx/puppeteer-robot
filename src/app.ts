@@ -8,6 +8,7 @@ import * as dotenv from 'dotenv-flow';
 import { Doer } from './doer';
 import { PayPalRobot } from './payPalRobot';
 
+const sendmail:any = require('sendmail')();
 dotenv.config();
 
 class App {
@@ -56,7 +57,25 @@ class App {
           const now:number = Date.now();
           const screenshotFileName:string =
             `${now}-processing_order.png`;
-            this.botPP.currentPage.screenshot({path: screenshotFileName});
+            await this.botPP.currentPage.screenshot({path: screenshotFileName})
+
+            screenshotFileName = [process.env.SCREENSHOT_DIR, '/', screenshotFileName].join('/');
+            sendmail({
+                    from:process.env.SENDMAIL_FROM,
+                    to: process.env.SENDMAIL_TO,
+                    subject: 'failed order',
+                html: `Order ${jsonOrder.order_id} has been failed`,
+                attachments: [
+                    { // utf-8 string as an attachment
+                        filename: 'FailureReport{jsonOrder.order_id}.png',
+                        path: screenshotFileName
+                    }
+                ],
+            }, function(err: any, reply: any) {
+                        console.log(err && err.stack);
+                        console.dir(reply);
+                });
+
           console.log(`Failed with screenshot:${screenshotFileName}`);
           throw error;
         });
