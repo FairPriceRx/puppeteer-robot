@@ -59,7 +59,6 @@ class App {
             `${now}-processing_order.png`;
             await this.botPP.currentPage.screenshot({path: screenshotFileName})
 
-            screenshotFileName = [process.env.SCREENSHOT_DIR, '/', screenshotFileName].join('/');
             sendmail({
                 silent: false,
                 from:process.env.SENDMAIL_FROM,
