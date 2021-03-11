@@ -64,7 +64,7 @@
     "@types/dotenv-flow": "^3.0.0",
     "@types/express": "^4.17.2",
     "@types/puppeteer": "^2.0.0",
-    "country-code-lookup": "^0.0.18",
+    "country-code-lookup": "^0.0.19",
     "country-telephone-code": "^0.2.0",
     "dotenv-flow": "^3.1.0",
     "express": "^4.17.1",
